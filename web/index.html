@@ -1806,6 +1806,367 @@ svg { display: block; }
 .btn-primary:active { transform: scale(.985); }
 
 /* ============================================================
+   Insight — 行动 v.s. 压力趋势（全屏面板）
+   ============================================================ */
+.insight-panel {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 54px;
+  bottom: 0;
+  z-index: 26;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  border-radius: 30px 30px 0 0;
+  box-shadow: 0 -12px 40px rgba(0, 0, 0, .24);
+  overflow: hidden;
+  transform: translateY(102%);
+  transition: transform .3s cubic-bezier(.32, .72, 0, 1), visibility 0s linear .3s;
+  visibility: hidden;
+  will-change: transform;
+}
+
+.insight-panel.show {
+  transform: translateY(0);
+  visibility: visible;
+  transition: transform .3s cubic-bezier(.32, .72, 0, 1), visibility 0s;
+}
+
+.insight-home {
+  position: absolute;
+  left: 50%;
+  bottom: 8px;
+  z-index: 3;
+  width: 134px;
+  height: 5px;
+  border-radius: 999px;
+  background: var(--ink);
+  opacity: .26;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.insight-head {
+  flex: 0 0 auto;
+  display: grid;
+  grid-template-columns: 76px 1fr 76px;
+  align-items: center;
+  padding: 12px 20px 8px;
+}
+
+.insight-back {
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  margin-left: -2px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--mint);
+}
+
+.insight-back .chev { transition: transform .2s ease; }
+.insight-back:active .chev { transform: translateX(-2px); }
+
+.insight-title {
+  margin: 0;
+  text-align: center;
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -.2px;
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+.insight-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 4px 20px 30px;
+  scrollbar-width: none;
+  overscroll-behavior: contain;
+}
+
+.insight-body::-webkit-scrollbar { width: 0; height: 0; }
+
+.insight-seg { align-self: flex-start; margin-top: 2px; }
+
+.insight-intro {
+  margin: 12px 2px 16px;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--inkSecondary);
+}
+
+.insight-list {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.ia-row {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 9px 12px;
+  border-radius: 16px;
+  border: 1.5px solid transparent;
+  background: var(--surface);
+  box-shadow: var(--shadow-soft);
+  text-align: left;
+  transition: background-color .2s ease, border-color .2s ease, box-shadow .2s ease, transform .15s ease;
+}
+
+.ia-row.on {
+  background: var(--mintSoft);
+  border-color: var(--mint);
+  box-shadow: 0 6px 18px rgba(111, 199, 154, .16);
+}
+
+.ia-row:active { transform: scale(.995); }
+
+.ia-emoji {
+  width: 34px;
+  height: 34px;
+  border-radius: 11px;
+  background: var(--surfaceAlt);
+  display: grid;
+  place-items: center;
+  font-size: 17px;
+  line-height: 1;
+}
+
+.ia-row.on .ia-emoji { background: var(--surface); }
+
+.ia-body {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ia-top {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.ia-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 14.5px;
+  font-weight: 600;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ia-meta {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.ia-badge {
+  padding: 2px 6px;
+  border-radius: 999px;
+  background: var(--surfaceAlt);
+  color: var(--inkSecondary);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .1px;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.ia-row.on .ia-badge { background: var(--surface); }
+
+.ia-dir {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10.5px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.ia-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.ia-dir.positive { color: var(--mint); }
+.ia-dir.negative { color: var(--overload); }
+.ia-dir.neutral { color: var(--inkTertiary); }
+.ia-dir.neutral .ia-dot { background: var(--muted); }
+
+.ia-sentence {
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.4;
+  color: var(--inkSecondary);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.insight-compare {
+  margin-top: 16px;
+  padding: 18px;
+  background: var(--surface);
+  border-radius: 24px;
+  box-shadow: var(--shadow);
+}
+
+.cmp-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.cmp-title {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -.2px;
+  line-height: 1.35;
+  color: var(--ink);
+}
+
+.cmp-legend {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--inkTertiary);
+  white-space: nowrap;
+}
+
+.cmp-leg {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.cmp-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--muted);
+}
+
+.cmp-dot.match { background: var(--mint); }
+.cmp-dot.other { background: var(--muted); }
+
+.cmp-list { margin-top: 10px; }
+
+.cmp-row + .cmp-row {
+  margin-top: 13px;
+  padding-top: 13px;
+  border-top: 1px solid var(--hairline);
+}
+
+.cmp-line {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.cmp-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.cmp-vals {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  font-variant-numeric: tabular-nums;
+}
+
+.cmp-k {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--inkTertiary);
+}
+
+.cmp-num {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.cmp-num.other {
+  color: var(--inkSecondary);
+  font-weight: 600;
+}
+
+.cmp-sep {
+  margin: 0 1px;
+  font-size: 10px;
+  color: var(--inkTertiary);
+}
+
+.cmp-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 7px;
+}
+
+.cmp-bar {
+  display: block;
+  height: 5px;
+  width: 0;
+  border-radius: 999px;
+  background: var(--muted);
+  transition: width .25s cubic-bezier(.22, .8, .2, 1), background-color .25s ease;
+}
+
+.cmp-bar.other { opacity: .55; }
+
+.cmp-conclusion {
+  margin: 14px 0 0;
+  padding-top: 12px;
+  border-top: 1px solid var(--hairline);
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--inkSecondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.insight-compare.swap .cmp-row { animation: cmpSwap .25s ease; }
+
+@keyframes cmpSwap {
+  from { opacity: .4; transform: translateY(2px); }
+  to { opacity: 1; transform: none; }
+}
+
+.insight-footnote {
+  margin: 16px 6px 0;
+  font-size: 11px;
+  line-height: 1.55;
+  color: var(--inkTertiary);
+  text-align: center;
+}
+
+/* ============================================================
    Alert + toast
    ============================================================ */
 .alert-layer {
@@ -2369,6 +2730,90 @@ svg { display: block; }
           </div>
         </section>
 
+        <!-- ==================== 洞察：行动 v.s. 压力趋势 ==================== -->
+        <section class="insight-panel" id="insightPanel" role="dialog" aria-modal="true"
+                 aria-labelledby="insightPanelTitle" aria-hidden="true">
+          <header class="insight-head">
+            <button class="insight-back" id="insightBack" type="button">
+              <svg class="chev" width="7" height="12" viewBox="0 0 7 12" fill="none" aria-hidden="true">
+                <path d="M6 1L1 6l5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              返回
+            </button>
+            <h2 class="insight-title" id="insightPanelTitle">行动 v.s. 压力趋势</h2>
+            <span aria-hidden="true"></span>
+          </header>
+
+          <div class="insight-body" id="insightBody">
+            <div class="segmented insight-seg" id="insightSeg" role="group" aria-label="统计窗口">
+              <button class="seg-btn on" type="button" data-window="60" aria-pressed="true">近 60 天</button>
+              <button class="seg-btn" type="button" data-window="30" aria-pressed="false">近 30 天</button>
+            </div>
+
+            <p class="insight-intro">筛选习惯，对比符合与不符合的日子，看看哪些行动真的在改变你的压力。</p>
+
+            <div class="insight-list" id="insightList" role="group" aria-label="关键行动"></div>
+
+            <div class="insight-compare" id="insightCompare" aria-live="polite">
+              <div class="cmp-head">
+                <span class="cmp-title" id="cmpTitle"></span>
+                <span class="cmp-legend">
+                  <span class="cmp-leg"><i class="cmp-dot match"></i>符合</span>
+                  <span class="cmp-leg"><i class="cmp-dot other"></i>不符合</span>
+                </span>
+              </div>
+              <div class="cmp-list">
+                <div class="cmp-row" data-cmp="index">
+                  <div class="cmp-line">
+                    <span class="cmp-name">综合压力</span>
+                    <span class="cmp-vals">
+                      <span class="cmp-k">符合</span><span class="cmp-num" data-match>—</span>
+                      <span class="cmp-sep">·</span>
+                      <span class="cmp-k">不符合</span><span class="cmp-num other" data-other>—</span>
+                    </span>
+                  </div>
+                  <div class="cmp-bars">
+                    <span class="cmp-bar match" data-bar-match></span>
+                    <span class="cmp-bar other" data-bar-other></span>
+                  </div>
+                </div>
+                <div class="cmp-row" data-cmp="hrv">
+                  <div class="cmp-line">
+                    <span class="cmp-name">HRV</span>
+                    <span class="cmp-vals">
+                      <span class="cmp-k">符合</span><span class="cmp-num" data-match>—</span>
+                      <span class="cmp-sep">·</span>
+                      <span class="cmp-k">不符合</span><span class="cmp-num other" data-other>—</span>
+                    </span>
+                  </div>
+                  <div class="cmp-bars">
+                    <span class="cmp-bar match" data-bar-match></span>
+                    <span class="cmp-bar other" data-bar-other></span>
+                  </div>
+                </div>
+                <div class="cmp-row" data-cmp="rhr">
+                  <div class="cmp-line">
+                    <span class="cmp-name">静息心率</span>
+                    <span class="cmp-vals">
+                      <span class="cmp-k">符合</span><span class="cmp-num" data-match>—</span>
+                      <span class="cmp-sep">·</span>
+                      <span class="cmp-k">不符合</span><span class="cmp-num other" data-other>—</span>
+                    </span>
+                  </div>
+                  <div class="cmp-bars">
+                    <span class="cmp-bar match" data-bar-match></span>
+                    <span class="cmp-bar other" data-bar-other></span>
+                  </div>
+                </div>
+              </div>
+              <p class="cmp-conclusion" id="cmpConclusion"></p>
+            </div>
+
+            <p class="insight-footnote">仅统计至少 5 天数据的行动，样本不足时不给结论。</p>
+          </div>
+          <div class="insight-home" aria-hidden="true"></div>
+        </section>
+
         <!-- ==================== 通用 Alert ==================== -->
         <div class="alert-layer" id="alertLayer" role="alertdialog" aria-modal="true" aria-labelledby="alertTitle" aria-hidden="true">
           <div class="alert-box">
@@ -2495,6 +2940,36 @@ svg { display: block; }
     });
   }
 
+  /* ---------------- insight demo data (deterministic, no random) ---------------- */
+  /* delta is derived at render time: idxM - idxO (points on the 0–100 stress index). */
+
+  var INSIGHT_ACTIONS = [
+    { id: 'sleep', e: '🌙', name: '睡够 7 小时',
+      w60: { m: 32, o: 28, idxM: 48, idxO: 56, hrvM: 62, hrvO: 54, rhrM: 60, rhrO: 64 },
+      w30: { m: 16, o: 14, idxM: 47, idxO: 56, hrvM: 63, hrvO: 54, rhrM: 60, rhrO: 65 } },
+    { id: 'exercise', e: '🏃', name: '20 分钟以上运动',
+      w60: { m: 26, o: 34, idxM: 47, idxO: 54, hrvM: 63, hrvO: 55, rhrM: 59, rhrO: 63 },
+      w30: { m: 13, o: 17, idxM: 46, idxO: 54, hrvM: 63, hrvO: 55, rhrM: 59, rhrO: 63 } },
+    { id: 'sun', e: '🌞', name: '晨间晒太阳 20 分钟',
+      w60: { m: 21, o: 39, idxM: 50, idxO: 53, hrvM: 60, hrvO: 56, rhrM: 61, rhrO: 63 },
+      w30: { m: 10, o: 20, idxM: 50, idxO: 54, hrvM: 60, hrvO: 56, rhrM: 61, rhrO: 63 } },
+    { id: 'meditate', e: '🧘', name: '有冥想记录',
+      w60: { m: 18, o: 42, idxM: 52, idxO: 52, hrvM: 58, hrvO: 58, rhrM: 63, rhrO: 63 },
+      w30: { m: 9, o: 21, idxM: 52, idxO: 52, hrvM: 58, hrvO: 58, rhrM: 63, rhrO: 63 } },
+    { id: 'caffeine', e: '☕️', name: '咖啡因 > 100mg',
+      w60: { m: 24, o: 36, idxM: 61, idxO: 50, hrvM: 50, hrvO: 60, rhrM: 66, rhrO: 61 },
+      w30: { m: 12, o: 18, idxM: 62, idxO: 50, hrvM: 49, hrvO: 60, rhrM: 67, rhrO: 61 } },
+    { id: 'late', e: '🛏', name: '晚于 01:00 睡觉',
+      w60: { m: 14, o: 46, idxM: 64, idxO: 49, hrvM: 46, hrvO: 62, rhrM: 68, rhrO: 61 },
+      w30: { m: 7, o: 23, idxM: 66, idxO: 49, hrvM: 45, hrvO: 62, rhrM: 69, rhrO: 61 } },
+    { id: 'steps', e: '👟', name: '10000+ 步',
+      w60: { m: 29, o: 31, idxM: 49, idxO: 54, hrvM: 61, hrvO: 56, rhrM: 60, rhrO: 63 },
+      w30: { m: 15, o: 15, idxM: 48, idxO: 55, hrvM: 62, hrvO: 56, rhrM: 60, rhrO: 63 } },
+    { id: 'water', e: '💧', name: '喝够 2000ml',
+      w60: { m: 38, o: 22, idxM: 51, idxO: 55, hrvM: 59, hrvO: 55, rhrM: 62, rhrO: 64 },
+      w30: { m: 19, o: 11, idxM: 51, idxO: 56, hrvM: 59, hrvO: 55, rhrM: 62, rhrO: 64 } }
+  ];
+
   /* ---------------- state ---------------- */
 
   var S = {
@@ -2512,7 +2987,9 @@ svg { display: block; }
     clock: '20:47',
     sheetMood: 2,
     sheetState: '平静',
-    sheetTags: []
+    sheetTags: [],
+    insightWindow: 60,
+    insightAction: 'sleep'
   };
 
   /* ---------------- helpers ---------------- */
@@ -2907,6 +3384,7 @@ svg { display: block; }
   }
 
   function openSheet() {
+    closeInsight();
     S.sheetMood = S.dayMood == null ? 2 : S.dayMood;
     S.sheetState = '平静';
     S.sheetTags = [];
@@ -2915,15 +3393,15 @@ svg { display: block; }
     var sheet = $('#sheet');
     sheet.classList.add('show');
     sheet.setAttribute('aria-hidden', 'false');
-    $('#scrim').classList.add('show');
     $('.sheet-body').scrollTop = 0;
+    syncScrim();
   }
 
   function closeSheet() {
     var sheet = $('#sheet');
     sheet.classList.remove('show');
     sheet.setAttribute('aria-hidden', 'true');
-    $('#scrim').classList.remove('show');
+    syncScrim();
   }
 
   function saveRecord() {
@@ -2945,6 +3423,173 @@ svg { display: block; }
     toast('已记录 · ' + (S.sheetState || '平静'));
   }
 
+  /* ---------------- insight panel ---------------- */
+
+  function insightById(id) {
+    for (var i = 0; i < INSIGHT_ACTIONS.length; i++) {
+      if (INSIGHT_ACTIONS[i].id === id) { return INSIGHT_ACTIONS[i]; }
+    }
+    return null;
+  }
+
+  function insightStat(a) {
+    return S.insightWindow === 30 ? a.w30 : a.w60;
+  }
+
+  function insightDelta(a) {
+    var s = insightStat(a);
+    return s.idxM - s.idxO;
+  }
+
+  function insightMagnitude(delta) {
+    var d = Math.abs(delta);
+    if (d >= 10) { return '大'; }
+    if (d >= 5) { return '中'; }
+    return '小';
+  }
+
+  function insightTone(delta) {
+    if (delta < 0) { return 'positive'; }
+    if (delta > 0) { return 'negative'; }
+    return 'neutral';
+  }
+
+  function insightToneLabel(delta) {
+    if (delta < 0) { return '积极'; }
+    if (delta > 0) { return '消极'; }
+    return '中性';
+  }
+
+  function insightSentence(delta) {
+    if (delta < 0) { return '压力比其它日子平均低 ' + Math.abs(delta) + ' 点'; }
+    if (delta > 0) { return '压力比其它日子平均高 ' + delta + ' 点'; }
+    return '压力与其它日子基本持平';
+  }
+
+  function syncScrim() {
+    var open = $('#sheet').classList.contains('show') || $('#insightPanel').classList.contains('show');
+    $('#scrim').classList.toggle('show', open);
+  }
+
+  function renderInsightSeg() {
+    $$('#insightSeg .seg-btn').forEach(function (b) {
+      var on = +b.getAttribute('data-window') === S.insightWindow;
+      b.classList.toggle('on', on);
+      b.setAttribute('aria-pressed', on ? 'true' : 'false');
+    });
+  }
+
+  function renderInsightList() {
+    $('#insightList').innerHTML = INSIGHT_ACTIONS.map(function (a) {
+      var d = insightDelta(a);
+      var on = a.id === S.insightAction;
+      var tone = insightTone(d);
+      return '<button class="ia-row' + (on ? ' on' : '') + '" type="button" data-insight="' + a.id + '"' +
+               ' aria-pressed="' + on + '">' +
+               '<span class="ia-emoji emoji">' + a.e + '</span>' +
+               '<span class="ia-body">' +
+                 '<span class="ia-top">' +
+                   '<span class="ia-name">' + esc(a.name) + '</span>' +
+                   '<span class="ia-meta">' +
+                     '<span class="ia-badge">影响 ' + insightMagnitude(d) + '</span>' +
+                     '<span class="ia-dir ' + tone + '"><i class="ia-dot"></i>' + insightToneLabel(d) + '</span>' +
+                   '</span>' +
+                 '</span>' +
+                 '<span class="ia-sentence">' + insightSentence(d) + '</span>' +
+               '</span>' +
+             '</button>';
+    }).join('');
+  }
+
+  function setCmpMetric(key, m, o, color) {
+    var row = $('.cmp-row[data-cmp="' + key + '"]');
+    if (!row) { return; }
+    var max = Math.max(m, o) || 1;
+    $('[data-match]', row).textContent = m;
+    $('[data-other]', row).textContent = o;
+    var bm = $('[data-bar-match]', row);
+    var bo = $('[data-bar-other]', row);
+    bm.style.background = color;
+    bm.style.width = (m / max * 100).toFixed(1) + '%';
+    bo.style.width = (o / max * 100).toFixed(1) + '%';
+  }
+
+  function renderInsightCompare(animate) {
+    var a = insightById(S.insightAction) || INSIGHT_ACTIONS[0];
+    var s = insightStat(a);
+    var delta = s.idxM - s.idxO;
+    var mag = insightMagnitude(delta);
+
+    $('#cmpTitle').textContent = '「' + a.name + '」的日子里';
+
+    setCmpMetric('index', s.idxM, s.idxO, 'var(' + LEVEL_VAR[levelOf(s.idxM)] + ')');
+    setCmpMetric('hrv', s.hrvM, s.hrvO, 'var(--mint)');
+    setCmpMetric('rhr', s.rhrM, s.rhrO, 'var(--great)');
+
+    var line;
+    if (delta < 0) {
+      line = '综合压力比其它日子平均低 ' + Math.abs(delta) + ' 点，影响程度：' + mag + '。';
+    } else if (delta > 0) {
+      line = '综合压力比其它日子平均高 ' + delta + ' 点，影响程度：' + mag + '。';
+    } else {
+      line = '综合压力与其它日子基本持平，影响程度：' + mag + '。';
+    }
+    line += '符合 ' + s.m + ' 天 / 不符合 ' + s.o + ' 天。';
+    $('#cmpConclusion').textContent = line;
+
+    if (animate !== false) {
+      var card = $('#insightCompare');
+      card.classList.remove('swap');
+      void card.offsetWidth;
+      card.classList.add('swap');
+    }
+  }
+
+  function selectInsight(id) {
+    if (!id || id === S.insightAction) { return; }
+    S.insightAction = id;
+    $$('#insightList .ia-row').forEach(function (row) {
+      var on = row.getAttribute('data-insight') === id;
+      row.classList.toggle('on', on);
+      row.setAttribute('aria-pressed', on ? 'true' : 'false');
+    });
+    renderInsightCompare();
+    revealCompare();
+  }
+
+  function revealCompare() {
+    var card = $('#insightCompare');
+    var body = $('#insightBody');
+    if (!card || !body) { return; }
+    var cr = card.getBoundingClientRect();
+    var br = body.getBoundingClientRect();
+    if (cr.bottom > br.bottom - 8 || cr.top < br.top + 8) {
+      if (typeof card.scrollIntoView === 'function') {
+        card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    }
+  }
+
+  function openInsight() {
+    closeSheet();
+    hideAlert();
+    renderInsightSeg();
+    renderInsightList();
+    renderInsightCompare(false);
+    var panel = $('#insightPanel');
+    panel.classList.add('show');
+    panel.setAttribute('aria-hidden', 'false');
+    $('#insightBody').scrollTop = 0;
+    syncScrim();
+  }
+
+  function closeInsight() {
+    var panel = $('#insightPanel');
+    panel.classList.remove('show');
+    panel.setAttribute('aria-hidden', 'true');
+    syncScrim();
+  }
+
   /* ---------------- render all ---------------- */
 
   function renderAll() {
@@ -2958,6 +3603,9 @@ svg { display: block; }
     renderSparklines();
     renderTrend();
     syncSheetSelection();
+    renderInsightSeg();
+    renderInsightList();
+    renderInsightCompare(false);
     $$('.switch').forEach(function (sw) {
       var key = sw.getAttribute('data-toggle');
       sw.setAttribute('aria-checked', S.toggles[key] ? 'true' : 'false');
@@ -2978,12 +3626,15 @@ svg { display: block; }
     S.sheetMood = 2;
     S.sheetState = '平静';
     S.sheetTags = [];
+    S.insightWindow = 60;
+    S.insightAction = 'sleep';
     closeSheet();
+    closeInsight();
     hideAlert();
     $('#interp').classList.remove('open');
     $('#detailBtn').classList.remove('open');
     $('#detailBtn').setAttribute('aria-expanded', 'false');
-    $$('.seg-btn').forEach(function (b) {
+    $$('#rangeSeg .seg-btn').forEach(function (b) {
       var on = +b.getAttribute('data-range') === 14;
       b.classList.toggle('on', on);
       b.setAttribute('aria-pressed', on ? 'true' : 'false');
@@ -3030,12 +3681,12 @@ svg { display: block; }
       return;
     }
 
-    var seg = t.closest ? t.closest('.seg-btn') : null;
+    var seg = t.closest ? t.closest('#rangeSeg .seg-btn') : null;
     if (seg) {
       var range = +seg.getAttribute('data-range');
       if (range !== S.range) {
         S.range = range;
-        $$('.seg-btn').forEach(function (b) {
+        $$('#rangeSeg .seg-btn').forEach(function (b) {
           var on = +b.getAttribute('data-range') === range;
           b.classList.toggle('on', on);
           b.setAttribute('aria-pressed', on ? 'true' : 'false');
@@ -3087,12 +3738,31 @@ svg { display: block; }
   });
 
   $('#sheetClose').addEventListener('click', closeSheet);
-  $('#scrim').addEventListener('click', closeSheet);
+  $('#scrim').addEventListener('click', function () {
+    closeSheet();
+    closeInsight();
+  });
   $('#saveBtn').addEventListener('click', saveRecord);
   $('#alertOk').addEventListener('click', hideAlert);
 
-  $('#insightBtn').addEventListener('click', function () {
-    showAlert('数据积累中', '继续记录 3 天心情与习惯，就能看到行动与压力趋势的关联。');
+  $('#insightBtn').addEventListener('click', openInsight);
+  $('#insightBack').addEventListener('click', closeInsight);
+
+  $('#insightSeg').addEventListener('click', function (e) {
+    var btn = e.target.closest ? e.target.closest('[data-window]') : null;
+    if (!btn) { return; }
+    var w = +btn.getAttribute('data-window');
+    if (w === S.insightWindow) { return; }
+    S.insightWindow = w;
+    renderInsightSeg();
+    renderInsightList();
+    renderInsightCompare();
+  });
+
+  $('#insightList').addEventListener('click', function (e) {
+    var row = e.target.closest ? e.target.closest('[data-insight]') : null;
+    if (!row) { return; }
+    selectInsight(row.getAttribute('data-insight'));
   });
 
   $('#ydayBtn').addEventListener('click', function () {
@@ -3145,6 +3815,7 @@ svg { display: block; }
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape') {
       if ($('#alertLayer').classList.contains('show')) { hideAlert(); return; }
+      if ($('#insightPanel').classList.contains('show')) { closeInsight(); return; }
       if ($('#sheet').classList.contains('show')) { closeSheet(); }
     }
   });

@@ -132,13 +132,12 @@ struct ActionComparison: Identifiable {
         return "大"
     }
 
-    /// Percentage difference in stress index against the other days.
+    /// Difference in stress index points against the other days.
+    /// The index is a 0–100 score, so points are used rather than a relative percentage.
     var percentText: String {
-        guard avgIndexOthers > 0 else { return "—" }
-        let pct = abs(indexDelta) / avgIndexOthers * 100
-        let rounded = Int(pct.rounded())
-        if isPositive { return "压力比其它日子平均低 \(rounded)%" }
-        if isNegative { return "压力比其它日子平均高 \(rounded)%" }
+        let points = Int(abs(indexDelta).rounded())
+        if isPositive { return "压力比其它日子平均低 \(points) 点" }
+        if isNegative { return "压力比其它日子平均高 \(points) 点" }
         return "与其它日子差别不大"
     }
 
