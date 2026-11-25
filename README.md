@@ -22,6 +22,12 @@ StressWatch 的净室复刻练习：一个 SwiftUI 写的 iOS 压力 / 心情记
 
 > 这个 IPA 是**未签名**的。你说过自己签名，直接用你的签名工具（Sideloadly / eSign / AltStore / 自建证书）签完装到 iPhone 即可。签名时如果提示 Bundle ID 冲突，把 ID 改成你自己的（见下方「改 Bundle ID」）。
 
+### GitHub 侧的两个硬限制（实测踩过）
+
+1. **必须 `runs-on: macos-15`**。GitHub 已对公开仓库停用 Intel 版 `macos-14`，用它会在 1 秒内被取消且 0 个步骤（`runner_id: 0`）。Apple Silicon 的 `macos-15` 正常。
+2. **macOS runner 只对公开仓库免费**。仓库是私有的话，macOS 任务同样秒取消；解决方式是仓库公开，或给账号绑定支付方式 / 升级付费计划。
+   要转私有：`gh repo edit <owner>/mood-watch --visibility private` —— 但之后 macOS 构建会再次被拒，需要先绑定账单。
+
 ### 想顺便改 Bundle ID / 版本
 
 `Run workflow` 时有输入框 `bundle_id` 与 `marketing_version`，填了就用填的值，不填用默认。
