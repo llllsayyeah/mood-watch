@@ -60,10 +60,8 @@ struct ActionsView: View {
         .sheet(isPresented: $showMoodSheet) {
             MoodLogSheet().environmentObject(store)
         }
-        .alert("数据积累中", isPresented: $showInsightTeaser) {
-            Button("好", role: .cancel) {}
-        } message: {
-            Text("至少需要 5 天以上带该行动标签的记录，才能对比出习惯与压力之间的关系。继续记录，很快就有了。")
+        .sheet(isPresented: $showInsightTeaser) {
+            InsightView().environmentObject(store)
         }
     }
 }
