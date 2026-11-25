@@ -1,0 +1,17 @@
+# macOS
+.DS_Store
+
+# Xcode
+build/
+DerivedData/
+*.xcarchive
+*.xcuserstate
+xcuserdata/
+*.ipa
+
+# Python
+__pycache__/
+*.pyc
+
+# Logs
+*.log

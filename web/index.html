@@ -1,0 +1,3167 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mood Watch · 界面预览</title>
+<style>
+/* ============================================================
+   Tokens — names match docs/DESIGN.md
+   ============================================================ */
+:root {
+  --bg: #F4F7F3;
+  --surface: #FFFFFF;
+  --surfaceAlt: #EDF2EC;
+  --ink: #1B2320;
+  --inkSecondary: #6B7A73;
+  --inkTertiary: #A3AFA9;
+  --mint: #6FC79A;
+  --mintSoft: #DDF1E4;
+  --overload: #E8604C;
+  --warn: #E9A13B;
+  --normal: #58C08D;
+  --great: #5C7CFA;
+  --muted: #B9C3BE;
+  --hairline: #E3E9E4;
+
+  --shadow: 0 8px 24px rgba(27, 35, 32, .06);
+  --shadow-soft: 0 4px 14px rgba(27, 35, 32, .05);
+  --knob: #F7FAF8;
+  --scale: 1;
+  --page-pad: 20px;
+  --card-gap: 14px;
+}
+
+body[data-theme="dark"] {
+  --bg: #0D1412;
+  --surface: #151E1B;
+  --surfaceAlt: #1C2723;
+  --ink: #F2F6F3;
+  --inkSecondary: #9AA8A2;
+  --inkTertiary: #5E6B66;
+  --mint: #6FC79A;
+  --mintSoft: #1F3A2C;
+  --overload: #F0705D;
+  --warn: #F0AE4E;
+  --normal: #63CB97;
+  --great: #7B95FF;
+  --muted: #4E5A55;
+  --hairline: #263330;
+  --shadow: 0 8px 24px rgba(0, 0, 0, .34);
+  --shadow-soft: 0 4px 14px rgba(0, 0, 0, .28);
+  --knob: #E6EDE8;
+}
+
+/* ============================================================
+   Base
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body { height: 100%; }
+
+body {
+  margin: 0;
+  overflow: hidden;
+  color: var(--ink);
+  background-color: #7C7C7C;
+  background-image: radial-gradient(120% 100% at 50% 0%, #9E9E9E 0%, #858585 46%, #757575 100%);
+  font-family: -apple-system, "SF Pro Rounded", "SF Pro Text", "Segoe UI Variable Text", "Segoe UI",
+               "PingFang SC", "Microsoft YaHei UI", "Microsoft YaHei", system-ui, sans-serif;
+  font-size: 15px;
+  line-height: 1.4;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  -webkit-tap-highlight-color: transparent;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  text-align: left;
+}
+
+svg { display: block; }
+
+:focus-visible { outline: 2px solid var(--mint); outline-offset: 2px; }
+
+.tabnum, .num { font-variant-numeric: tabular-nums; }
+
+.emoji {
+  font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
+  font-weight: 400;
+}
+
+.chev { flex: 0 0 auto; transition: transform .2s ease; }
+
+/* ============================================================
+   Stage + control bar (outside the phone, intentionally neutral)
+   ============================================================ */
+.stage {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 16px;
+  overflow: hidden;
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px 6px 14px;
+  border-radius: 999px;
+  background: rgba(250, 252, 250, .16);
+  border: 1px solid rgba(250, 252, 250, .22);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .12);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  color: #F3F7F4;
+  flex: 0 0 auto;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .2px;
+  color: rgba(248, 251, 249, .92);
+  white-space: nowrap;
+}
+
+.brand-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--mint);
+  box-shadow: 0 0 0 3px rgba(111, 199, 154, .22);
+}
+
+.ctl-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 28px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: rgba(250, 252, 250, .18);
+  color: #F3F7F4;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: background .2s ease, transform .16s ease;
+}
+
+.ctl-btn:hover { background: rgba(250, 252, 250, .3); }
+.ctl-btn:active { transform: scale(.95); }
+.ctl-btn .ico { font-size: 13px; line-height: 1; }
+
+/* ============================================================
+   iPhone 15 frame
+   ============================================================ */
+.phone-outer {
+  width: calc(417px * var(--scale));
+  height: calc(876px * var(--scale));
+  position: relative;
+  flex: 0 0 auto;
+}
+
+.phone {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 417px;
+  height: 876px;
+  padding: 12px;
+  border-radius: 66px;
+  transform: scale(var(--scale));
+  transform-origin: top left;
+  background: linear-gradient(155deg, #303134 0%, #161719 46%, #252629 100%);
+  box-shadow:
+    0 34px 70px rgba(0, 0, 0, .42),
+    0 8px 20px rgba(0, 0, 0, .3),
+    inset 0 0 0 1px rgba(255, 255, 255, .08);
+}
+
+.screen {
+  position: relative;
+  width: 393px;
+  height: 852px;
+  border-radius: 54px;
+  overflow: hidden;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .55);
+  transition: background-color .25s ease;
+}
+
+.island {
+  position: absolute;
+  top: 11px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 124px;
+  height: 36px;
+  border-radius: 22px;
+  background: #050807;
+  z-index: 22;
+  box-shadow: inset 0 0 3px rgba(255, 255, 255, .1);
+}
+
+.statusbar {
+  flex: 0 0 auto;
+  height: 54px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 26px 0 32px;
+  color: var(--ink);
+  position: relative;
+  z-index: 10;
+}
+
+.sb-time {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: .2px;
+  font-variant-numeric: tabular-nums;
+}
+
+.sb-svg { color: var(--ink); }
+
+/* ============================================================
+   Panels
+   ============================================================ */
+.content {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.panel {
+  position: absolute;
+  inset: 0;
+  display: none;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 6px var(--page-pad) 22px;
+  scrollbar-width: none;
+  overscroll-behavior: contain;
+}
+
+.panel::-webkit-scrollbar { width: 0; height: 0; }
+
+.panel.active {
+  display: block;
+  animation: panelIn .26s ease-out both;
+}
+
+@keyframes panelIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: none; }
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--card-gap);
+}
+
+/* staggered card entrance */
+.panel.active .stack > * { animation: cardIn .52s cubic-bezier(.22, .8, .2, 1) both; }
+.panel.active .stack > *:nth-child(1) { animation-delay: 0ms; }
+.panel.active .stack > *:nth-child(2) { animation-delay: 40ms; }
+.panel.active .stack > *:nth-child(3) { animation-delay: 80ms; }
+.panel.active .stack > *:nth-child(4) { animation-delay: 120ms; }
+.panel.active .stack > *:nth-child(5) { animation-delay: 160ms; }
+.panel.active .stack > *:nth-child(6) { animation-delay: 200ms; }
+
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* ============================================================
+   Page header
+   ============================================================ */
+.page-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 2px 14px;
+}
+
+.page-head.center { align-items: center; }
+
+.page-title {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -.4px;
+  line-height: 1.2;
+}
+
+.head-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  text-align: right;
+}
+
+.head-date {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--inkSecondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.head-upd {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--inkTertiary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ============================================================
+   Card
+   ============================================================ */
+.card {
+  position: relative;
+  background: var(--surface);
+  border-radius: 24px;
+  padding: 20px;
+  box-shadow: var(--shadow);
+  min-width: 0;
+}
+
+.card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.card-title {
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -.1px;
+  color: var(--ink);
+}
+
+.card-note {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--inkTertiary);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.mini-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--mint);
+  white-space: nowrap;
+}
+
+.mini-btn .chev { width: 5px; height: 9px; }
+
+/* ============================================================
+   Today — gauge
+   ============================================================ */
+.gauge-card {
+  min-height: 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.gauge-row {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 0;
+}
+
+.gauge {
+  position: relative;
+  width: 190px;
+  height: 190px;
+  flex: 0 0 190px;
+}
+
+.gauge-svg { width: 190px; height: 190px; }
+
+.gauge-track { stroke: var(--surfaceAlt); }
+
+#gaugeProg {
+  transition: stroke-dasharray .9s cubic-bezier(.22, .8, .2, 1);
+}
+
+.gauge-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding-bottom: 2px;
+}
+
+.gc-name {
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -.1px;
+  color: var(--ink);
+  line-height: 1.25;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.gc-metric {
+  margin-top: 4px;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: .6px;
+  color: var(--inkTertiary);
+}
+
+.gc-value {
+  font-size: 56px;
+  font-weight: 700;
+  line-height: 1.02;
+  letter-spacing: -2.5px;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+  margin: 1px 0 2px;
+}
+
+.gc-hrv {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--inkSecondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.gc-last {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--inkTertiary);
+  margin-top: 2px;
+  font-variant-numeric: tabular-nums;
+}
+
+.gauge-legend {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  padding: 2px 0 2px 2px;
+}
+
+.gl-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--inkTertiary);
+  transition: color .2s ease;
+  white-space: nowrap;
+}
+
+.gl-bar {
+  width: 3px;
+  height: 14px;
+  border-radius: 2px;
+  opacity: .32;
+  transition: opacity .25s ease, height .25s ease;
+}
+
+.gl-item.on { font-weight: 700; }
+.gl-item.on .gl-bar { opacity: 1; height: 20px; }
+
+.gl-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.gauge-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: auto;
+  padding-top: 12px;
+  border-top: 1px solid var(--hairline);
+}
+
+.foot-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--inkSecondary);
+}
+
+.gauge-foot .mini-btn.open .chev { transform: rotate(90deg) translateX(-1px); }
+
+.interp {
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: max-height .3s ease, opacity .26s ease;
+}
+
+.interp.open { max-height: 120px; opacity: 1; }
+
+.interp p {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--inkSecondary);
+}
+
+/* ============================================================
+   Today — HRV chart
+   ============================================================ */
+.hrv-chart { margin-top: 2px; }
+
+.hrv-chart svg { width: 100%; height: auto; }
+
+.grid-line {
+  stroke: var(--hairline);
+  stroke-width: 1;
+  stroke-dasharray: 2 4;
+}
+
+.axis-text {
+  fill: var(--inkTertiary);
+  font-size: 9px;
+  font-weight: 500;
+  font-family: inherit;
+  font-variant-numeric: tabular-nums;
+}
+
+.hrv-line {
+  fill: none;
+  stroke: var(--mint);
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+  animation: draw 1.15s cubic-bezier(.22, .8, .2, 1) .12s forwards;
+}
+
+@keyframes draw { to { stroke-dashoffset: 0; } }
+
+.hrv-area { fill: url(#hrvGrad); }
+
+.grad-a { stop-color: var(--mint); stop-opacity: .30; }
+.grad-b { stop-color: var(--mint); stop-opacity: .02; }
+
+.hrv-halo { fill: var(--mint); opacity: .16; }
+.hrv-dot { fill: var(--mint); stroke: var(--surface); stroke-width: 2; }
+
+.xaxis {
+  display: flex;
+  justify-content: space-between;
+  margin: 6px 0 0 24px;
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--inkTertiary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ============================================================
+   Today — mood
+   ============================================================ */
+.mood-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.mood-dot {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--surfaceAlt);
+  border: 2px solid transparent;
+  display: grid;
+  place-items: center;
+  font-size: 25px;
+  line-height: 1;
+  transition: transform .22s cubic-bezier(.3, 1.3, .5, 1), background-color .2s ease,
+              border-color .2s ease, box-shadow .2s ease;
+}
+
+.mood-dot.on {
+  transform: scale(1.1);
+  background: var(--mintSoft);
+  border-color: var(--mint);
+  box-shadow: 0 6px 14px rgba(111, 199, 154, .22);
+}
+
+.mood-dot:active { transform: scale(.94); }
+
+/* ============================================================
+   Today — key actions + mini ring
+   ============================================================ */
+.action-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-top: 1px solid var(--hairline);
+}
+
+.action-row:first-child { border-top: 0; padding-top: 0; }
+.action-row:last-child { padding-bottom: 0; }
+
+.ar-emoji {
+  width: 36px;
+  height: 36px;
+  flex: 0 0 36px;
+  border-radius: 12px;
+  background: var(--surfaceAlt);
+  display: grid;
+  place-items: center;
+  font-size: 18px;
+  line-height: 1;
+}
+
+.ar-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ar-val {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--inkSecondary);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.mini-ring {
+  width: 34px;
+  height: 34px;
+  flex: 0 0 34px;
+}
+
+.mini-ring svg { width: 34px; height: 34px; }
+
+.mr-track { stroke: var(--surfaceAlt); }
+
+.mr-prog {
+  stroke: var(--mint);
+  transition: stroke-dasharray .8s cubic-bezier(.22, .8, .2, 1);
+}
+
+/* ============================================================
+   Today — yesterday
+   ============================================================ */
+.yday {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  background: var(--surfaceAlt);
+  border-radius: 24px;
+  padding: 16px 18px;
+  transition: transform .18s ease, filter .2s ease;
+}
+
+.yday:active { transform: scale(.99); }
+
+.yday-ico {
+  width: 34px;
+  height: 34px;
+  flex: 0 0 34px;
+  border-radius: 12px;
+  background: var(--surface);
+  display: grid;
+  place-items: center;
+  font-size: 17px;
+  line-height: 1;
+}
+
+.yday-txt {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--inkSecondary);
+}
+
+.yday-txt b { color: var(--ink); font-weight: 600; }
+.yday .chev { color: var(--inkTertiary); }
+
+/* ============================================================
+   Trend
+   ============================================================ */
+.segmented {
+  display: inline-flex;
+  gap: 2px;
+  padding: 3px;
+  border-radius: 999px;
+  background: var(--surfaceAlt);
+  flex: 0 0 auto;
+}
+
+.seg-btn {
+  padding: 7px 13px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--inkSecondary);
+  white-space: nowrap;
+  transition: background-color .2s ease, color .2s ease, box-shadow .2s ease;
+}
+
+.seg-btn.on {
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: 0 2px 8px rgba(27, 35, 32, .10);
+}
+
+.chart {
+  position: relative;
+  height: 186px;
+  margin-top: 2px;
+}
+
+.bars {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  gap: 5px;
+}
+
+.bars.dense { gap: 2px; }
+
+.bar {
+  flex: 1 1 0;
+  min-width: 0;
+  height: 0;
+  border-radius: 4px 4px 2px 2px;
+  transition: height .6s cubic-bezier(.22, .8, .2, 1);
+  will-change: height;
+}
+
+.bars.dense .bar { border-radius: 2px 2px 1px 1px; }
+
+.avg-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  border-top: 1px dashed var(--muted);
+  pointer-events: none;
+}
+
+.avg-tag {
+  position: absolute;
+  right: 0;
+  top: -15px;
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: var(--surface);
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--inkTertiary);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.bar-x {
+  position: relative;
+  height: 14px;
+  margin-top: 8px;
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--inkTertiary);
+  font-variant-numeric: tabular-nums;
+}
+
+.bar-x span {
+  position: absolute;
+  top: 0;
+  white-space: nowrap;
+}
+
+.dist-row {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  padding: 8px 0;
+}
+
+.dist-row:first-child { padding-top: 0; }
+.dist-row:last-child { padding-bottom: 0; }
+
+.dist-head {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.dist-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex: 0 0 8px;
+}
+
+.dist-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dist-days {
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--inkTertiary);
+  font-variant-numeric: tabular-nums;
+}
+
+.dist-track {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--surfaceAlt);
+  overflow: hidden;
+}
+
+.dist-fill {
+  height: 100%;
+  width: 0;
+  border-radius: 999px;
+  transition: width .7s cubic-bezier(.22, .8, .2, 1);
+}
+
+.metric-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.metric { padding: 16px 16px 14px; }
+
+.metric-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--inkSecondary);
+  line-height: 1.35;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.metric-value {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  margin-top: 3px;
+}
+
+.metric-num {
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -.8px;
+  line-height: 1.1;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.metric-unit {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--inkSecondary);
+}
+
+.spark { margin-top: 8px; }
+.spark svg { width: 100%; height: auto; }
+
+.spark-line {
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.spark-line.hrv { stroke: var(--mint); }
+.spark-line.rhr { stroke: var(--great); }
+.spark-dot.hrv { fill: var(--mint); }
+.spark-dot.rhr { fill: var(--great); }
+
+/* ============================================================
+   Action
+   ============================================================ */
+.record-btn {
+  display: inline-flex;
+  align-items: center;
+  height: 32px;
+  padding: 0 14px;
+  border-radius: 999px;
+  background: var(--mint);
+  color: #0E1F18;
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+  box-shadow: 0 6px 16px rgba(111, 199, 154, .28);
+  transition: transform .16s ease;
+}
+
+.record-btn:active { transform: scale(.96); }
+
+.timeline { display: flex; flex-direction: column; }
+
+.tl-item {
+  display: grid;
+  grid-template-columns: 44px 14px 1fr;
+  gap: 0 10px;
+  padding-bottom: 16px;
+  position: relative;
+}
+
+.tl-item:last-child { padding-bottom: 0; }
+
+.tl-time {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--inkTertiary);
+  font-variant-numeric: tabular-nums;
+  padding-top: 4px;
+}
+
+.tl-rail {
+  position: relative;
+  display: flex;
+  justify-content: center;
+}
+
+.tl-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  margin-top: 7px;
+  flex: 0 0 9px;
+  box-shadow: 0 0 0 3px var(--surface);
+  position: relative;
+  z-index: 1;
+}
+
+.tl-rail::after {
+  content: "";
+  position: absolute;
+  top: 19px;
+  bottom: -16px;
+  left: 50%;
+  width: 1.5px;
+  transform: translateX(-50%);
+  background: var(--hairline);
+}
+
+.tl-item:last-child .tl-rail::after { display: none; }
+
+.tl-body {
+  min-width: 0;
+  background: var(--surfaceAlt);
+  border-radius: 16px;
+  padding: 12px 14px;
+}
+
+.tl-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tl-emoji { font-size: 19px; line-height: 1; }
+
+.tl-state {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.tl-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 8px;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  height: 24px;
+  padding: 0 9px;
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--inkSecondary);
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.tl-note {
+  margin-top: 7px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--inkSecondary);
+  overflow-wrap: anywhere;
+}
+
+.empty {
+  padding: 26px 12px;
+  text-align: center;
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--inkSecondary);
+}
+
+.empty span {
+  display: block;
+  font-size: 12px;
+  color: var(--inkTertiary);
+}
+
+.habit-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.habit {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  min-height: 92px;
+  padding: 13px 14px;
+  border-radius: 18px;
+  background: var(--surfaceAlt);
+  border: 1.5px solid transparent;
+  transition: background-color .2s ease, border-color .2s ease, transform .16s ease;
+}
+
+.habit:active { transform: scale(.98); }
+
+.habit .h-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.habit .h-emoji { font-size: 20px; line-height: 1; }
+
+.habit .h-check {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--mint);
+  color: #0E1F18;
+  display: grid;
+  place-items: center;
+  opacity: 0;
+  transform: scale(.55);
+  transition: opacity .22s ease, transform .22s cubic-bezier(.3, 1.3, .5, 1);
+}
+
+.habit .h-name {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--ink);
+}
+
+.habit .h-val {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--inkTertiary);
+  font-variant-numeric: tabular-nums;
+}
+
+.habit.on {
+  background: var(--mintSoft);
+  border-color: var(--mint);
+}
+
+.habit.on .h-check { opacity: 1; transform: scale(1); }
+.habit.on .h-val { color: var(--inkSecondary); }
+
+.insight {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  background: var(--surface);
+  border-radius: 24px;
+  padding: 18px 20px;
+  box-shadow: var(--shadow);
+  transition: transform .18s ease;
+}
+
+.insight:active { transform: scale(.99); }
+
+.insight-ico {
+  width: 44px;
+  height: 44px;
+  flex: 0 0 44px;
+  border-radius: 14px;
+  background: var(--mintSoft);
+  display: grid;
+  place-items: center;
+  font-size: 20px;
+  line-height: 1;
+}
+
+.insight-text {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.insight-t {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink);
+  line-height: 1.3;
+}
+
+.insight-s {
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--inkTertiary);
+}
+
+.insight .chev { color: var(--inkTertiary); }
+
+/* ============================================================
+   Health
+   ============================================================ */
+.head-sub {
+  margin-top: 4px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--inkTertiary);
+  font-variant-numeric: tabular-nums;
+}
+
+.age-card {
+  background: linear-gradient(158deg, var(--mintSoft) 0%, var(--surface) 64%);
+}
+
+.age-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.age-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--inkSecondary);
+}
+
+.age-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--mint);
+  font-size: 12px;
+  font-weight: 700;
+  box-shadow: var(--shadow-soft);
+}
+
+.age-value {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.age-num {
+  font-size: 56px;
+  font-weight: 700;
+  letter-spacing: -2.5px;
+  line-height: .92;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.age-unit {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--inkSecondary);
+  padding-bottom: 5px;
+}
+
+.age-sub {
+  margin-top: 8px;
+  font-size: 13px;
+  color: var(--inkSecondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.age-sub b { color: var(--ink); font-weight: 600; }
+
+.age-foot {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--hairline);
+  font-size: 11px;
+  line-height: 1.55;
+  color: var(--inkTertiary);
+}
+
+.factor {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 0;
+  border-top: 1px solid var(--hairline);
+}
+
+.factor:first-child { border-top: 0; padding-top: 0; }
+.factor:last-child { padding-bottom: 0; }
+
+.f-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.f-val {
+  font-size: 12px;
+  color: var(--inkTertiary);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.f-imp {
+  min-width: 54px;
+  text-align: right;
+  font-size: 13px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.f-imp.good { color: var(--mint); }
+.f-imp.bad { color: var(--overload); }
+
+.sleep-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.sleep-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 11px;
+  border-radius: 999px;
+  background: var(--mintSoft);
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.sleep-dur {
+  margin-top: 10px;
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -.6px;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.sleep-sub {
+  margin-top: 3px;
+  font-size: 12px;
+  color: var(--inkTertiary);
+  font-variant-numeric: tabular-nums;
+}
+
+.sleep-sub b { color: var(--mint); font-weight: 700; }
+
+.sleep-bar {
+  display: flex;
+  gap: 3px;
+  height: 14px;
+  border-radius: 999px;
+  overflow: hidden;
+  margin-top: 14px;
+}
+
+.sleep-seg { height: 100%; }
+
+.sleep-legend {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 12px;
+  margin-top: 12px;
+}
+
+.sl-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--inkSecondary);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.sl-dot {
+  width: 8px;
+  height: 8px;
+  flex: 0 0 8px;
+  border-radius: 3px;
+}
+
+.disclaimer {
+  padding: 4px 10px 2px;
+  font-size: 11px;
+  line-height: 1.6;
+  color: var(--inkTertiary);
+  text-align: center;
+}
+
+/* ============================================================
+   Settings
+   ============================================================ */
+.set-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.panel.active .set-groups > * { animation: cardIn .5s cubic-bezier(.22, .8, .2, 1) both; }
+.panel.active .set-groups > *:nth-child(1) { animation-delay: 0ms; }
+.panel.active .set-groups > *:nth-child(2) { animation-delay: 40ms; }
+.panel.active .set-groups > *:nth-child(3) { animation-delay: 80ms; }
+.panel.active .set-groups > *:nth-child(4) { animation-delay: 120ms; }
+.panel.active .set-groups > *:nth-child(5) { animation-delay: 160ms; }
+
+.set-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.set-glabel {
+  padding-left: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .3px;
+  color: var(--inkTertiary);
+}
+
+.set-card {
+  background: var(--surface);
+  border-radius: 24px;
+  padding: 0 20px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.set-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 52px;
+  padding: 9px 0;
+}
+
+.set-row + .set-row::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--hairline);
+}
+
+.sr-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sr-val {
+  font-size: 13px;
+  color: var(--inkSecondary);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.sr-chev { color: var(--inkTertiary); }
+
+.set-dot {
+  width: 8px;
+  height: 8px;
+  flex: 0 0 8px;
+  border-radius: 50%;
+}
+
+.set-row.danger .sr-name { color: var(--overload); }
+.set-row.danger .sr-chev { color: var(--overload); opacity: .7; }
+
+.switch {
+  position: relative;
+  width: 46px;
+  height: 28px;
+  flex: 0 0 46px;
+  border-radius: 999px;
+  background: var(--muted);
+  opacity: .55;
+  transition: background-color .22s ease, opacity .22s ease;
+}
+
+.switch::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--knob);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .28);
+  transition: transform .22s cubic-bezier(.3, 1.2, .4, 1);
+}
+
+.switch[aria-checked="true"] { background: var(--mint); opacity: 1; }
+.switch[aria-checked="true"]::after { transform: translateX(18px); }
+
+/* ============================================================
+   Tab bar
+   ============================================================ */
+.tabbar {
+  position: relative;
+  z-index: 15;
+  flex: 0 0 auto;
+  height: 84px;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  border-top: 1px solid var(--hairline);
+  box-shadow: 0 -8px 24px rgba(27, 35, 32, .04);
+}
+
+.tab-items {
+  flex: 1 1 auto;
+  display: flex;
+  padding: 6px 8px 0;
+}
+
+.tab-btn {
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  color: var(--inkTertiary);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .1px;
+  transition: color .2s ease;
+}
+
+.tab-btn svg {
+  width: 23px;
+  height: 23px;
+  transition: transform .2s ease;
+}
+
+.tab-btn.on { color: var(--mint); }
+.tab-btn.on svg { transform: translateY(-1px); }
+.tab-btn:active svg { transform: scale(.9); }
+
+.home-bar {
+  height: 26px;
+  display: grid;
+  place-items: center;
+}
+
+.home-bar span {
+  display: block;
+  width: 134px;
+  height: 5px;
+  border-radius: 999px;
+  background: var(--ink);
+  opacity: .26;
+}
+
+/* ============================================================
+   Mood sheet
+   ============================================================ */
+.scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 25;
+  background: rgba(13, 20, 18, .46);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .3s ease;
+}
+
+.scrim.show { opacity: 1; pointer-events: auto; }
+
+.sheet {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 26;
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100% - 44px);
+  background: var(--surface);
+  border-radius: 30px 30px 0 0;
+  box-shadow: 0 -12px 40px rgba(0, 0, 0, .24);
+  transform: translateY(102%);
+  transition: transform .4s cubic-bezier(.32, .72, 0, 1), visibility 0s linear .4s;
+  visibility: hidden;
+  will-change: transform;
+}
+
+.sheet.show {
+  transform: translateY(0);
+  visibility: visible;
+  transition: transform .4s cubic-bezier(.32, .72, 0, 1), visibility 0s;
+}
+
+.sheet-grab {
+  width: 40px;
+  height: 5px;
+  margin: 8px auto 0;
+  border-radius: 999px;
+  background: var(--muted);
+  opacity: .5;
+  flex: 0 0 auto;
+}
+
+.sheet-head {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 20px 4px;
+}
+
+.sheet-title {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -.3px;
+  color: var(--ink);
+}
+
+.sheet-close {
+  width: 30px;
+  height: 30px;
+  flex: 0 0 30px;
+  border-radius: 50%;
+  background: var(--surfaceAlt);
+  color: var(--inkSecondary);
+  display: grid;
+  place-items: center;
+  font-size: 15px;
+  line-height: 1;
+}
+
+.sheet-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 6px 20px 8px;
+  scrollbar-width: none;
+}
+
+.sheet-body::-webkit-scrollbar { width: 0; height: 0; }
+
+.sheet-sec { margin-top: 14px; }
+
+.sheet-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 9px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--inkSecondary);
+}
+
+.sheet-label .hint {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--inkTertiary);
+}
+
+.mood-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+}
+
+.mood-opt {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 0;
+  border-radius: 16px;
+  transition: background-color .18s ease;
+}
+
+.mood-opt .emo {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: var(--surfaceAlt);
+  border: 2px solid transparent;
+  display: grid;
+  place-items: center;
+  font-size: 24px;
+  line-height: 1;
+  transition: background-color .2s ease, border-color .2s ease, transform .2s cubic-bezier(.3, 1.2, .4, 1);
+}
+
+.mood-opt .lbl {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--inkTertiary);
+  transition: color .2s ease;
+}
+
+.mood-opt.on .emo {
+  background: var(--mintSoft);
+  border-color: var(--mint);
+  transform: scale(1.05);
+}
+
+.mood-opt.on .lbl { color: var(--ink); font-weight: 600; }
+
+.chip-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.chip {
+  height: 38px;
+  padding: 0 4px;
+  border-radius: 12px;
+  border: 1.5px solid transparent;
+  background: var(--surfaceAlt);
+  color: var(--inkSecondary);
+  font-size: 13px;
+  font-weight: 500;
+  display: grid;
+  place-items: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: background-color .18s ease, color .18s ease, border-color .18s ease;
+}
+
+.chip.on {
+  background: var(--mintSoft);
+  border-color: var(--mint);
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.tag-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tag-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 34px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1.5px solid transparent;
+  background: var(--surfaceAlt);
+  color: var(--inkSecondary);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: background-color .18s ease, color .18s ease, border-color .18s ease;
+}
+
+.tag-chip .e { font-size: 14px; line-height: 1; }
+
+.tag-chip.on {
+  background: var(--mintSoft);
+  border-color: var(--mint);
+  color: var(--ink);
+}
+
+.note-input {
+  width: 100%;
+  min-height: 76px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  border: 1.5px solid var(--hairline);
+  background: var(--surfaceAlt);
+  color: var(--ink);
+  font: inherit;
+  font-size: 14px;
+  line-height: 1.5;
+  resize: none;
+  outline: none;
+  transition: border-color .2s ease;
+}
+
+.note-input:focus { border-color: var(--mint); }
+.note-input::placeholder { color: var(--inkTertiary); }
+
+.sheet-foot {
+  flex: 0 0 auto;
+  padding: 10px 20px 24px;
+  border-top: 1px solid var(--hairline);
+  background: var(--surface);
+}
+
+.btn-primary {
+  width: 100%;
+  height: 50px;
+  border-radius: 16px;
+  background: var(--mint);
+  color: #0E1F18;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: .2px;
+  text-align: center;
+  box-shadow: 0 8px 20px rgba(111, 199, 154, .28);
+  transition: transform .16s ease, filter .2s ease;
+}
+
+.btn-primary:active { transform: scale(.985); }
+
+/* ============================================================
+   Alert + toast
+   ============================================================ */
+.alert-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(13, 20, 18, .38);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .2s ease;
+}
+
+.alert-layer.show { opacity: 1; pointer-events: auto; }
+
+.alert-box {
+  width: 272px;
+  max-width: 100%;
+  background: var(--surface);
+  border-radius: 22px;
+  overflow: hidden;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, .28);
+  transform: scale(.94);
+  transition: transform .22s cubic-bezier(.3, 1.2, .4, 1);
+}
+
+.alert-layer.show .alert-box { transform: scale(1); }
+
+.alert-content {
+  padding: 20px 18px 16px;
+  text-align: center;
+}
+
+.alert-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.alert-msg {
+  margin-top: 6px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--inkSecondary);
+}
+
+.alert-btn {
+  width: 100%;
+  height: 46px;
+  text-align: center;
+  border-top: 1px solid var(--hairline);
+  color: var(--mint);
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.toast {
+  position: absolute;
+  left: 50%;
+  bottom: 104px;
+  z-index: 45;
+  max-width: 300px;
+  padding: 10px 16px;
+  border-radius: 999px;
+  background: var(--ink);
+  color: var(--bg);
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  opacity: 0;
+  transform: translate(-50%, 10px);
+  pointer-events: none;
+  transition: opacity .24s ease, transform .24s cubic-bezier(.3, 1.2, .4, 1);
+}
+
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+/* ============================================================
+   Reduced motion
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .001ms !important;
+    animation-delay: 0ms !important;
+    transition-duration: .001ms !important;
+  }
+}
+</style>
+</head>
+<body data-theme="light">
+
+<div class="stage">
+  <div class="controls" role="group" aria-label="预览控制">
+    <span class="brand"><span class="brand-dot"></span>Mood Watch · 界面预览</span>
+    <button class="ctl-btn" id="themeBtn" type="button" aria-label="切换深色模式">
+      <span class="ico" id="themeIcon">☾</span><span id="themeLabel">深色</span>
+    </button>
+    <button class="ctl-btn" id="resetBtn" type="button" aria-label="重置演示数据">
+      <span class="ico">↺</span><span>重置</span>
+    </button>
+  </div>
+
+  <div class="phone-outer">
+    <div class="phone">
+      <div class="screen" id="screen">
+        <div class="island" aria-hidden="true"></div>
+
+        <div class="statusbar">
+          <span class="sb-time">20:41</span>
+          <svg class="sb-svg" width="68" height="13" viewBox="0 0 68 13" fill="none" aria-hidden="true">
+            <rect x="0" y="9" width="3" height="4" rx="1" fill="currentColor"/>
+            <rect x="4.5" y="7" width="3" height="6" rx="1" fill="currentColor"/>
+            <rect x="9" y="4.5" width="3" height="8.5" rx="1" fill="currentColor"/>
+            <rect x="13.5" y="2" width="3" height="11" rx="1" fill="currentColor"/>
+            <path d="M21.5 9.2a7.6 7.6 0 0 1 10 0" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+            <path d="M24 11.4a4.3 4.3 0 0 1 5 0" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+            <circle cx="26.5" cy="12.6" r=".95" fill="currentColor"/>
+            <rect x="43" y="1.8" width="20" height="10" rx="3" stroke="currentColor" stroke-opacity=".4"/>
+            <rect x="44.6" y="3.3" width="14" height="7" rx="1.6" fill="currentColor"/>
+            <path d="M64.4 5.2v3a2.1 2.1 0 0 0 0-3z" fill="currentColor" opacity=".4"/>
+          </svg>
+        </div>
+
+        <div class="content">
+
+          <!-- ==================== 今日 ==================== -->
+          <section class="panel active" data-panel="0">
+            <header class="page-head">
+              <h1 class="page-title">Hi, 你 <span class="emoji">👋</span></h1>
+              <div class="head-right">
+                <span class="head-date">11月25日 周二</span>
+                <span class="head-upd">数据更新于 20:41</span>
+              </div>
+            </header>
+
+            <div class="stack">
+
+              <div class="card gauge-card">
+                <div class="gauge-row">
+                  <div class="gauge">
+                    <svg class="gauge-svg" viewBox="0 0 190 190" aria-hidden="true">
+                      <circle class="gauge-track" cx="95" cy="95" r="84" fill="none" stroke-width="22"
+                              stroke-linecap="round" stroke-dasharray="395.84 527.79" transform="rotate(135 95 95)"/>
+                      <circle id="gaugeProg" cx="95" cy="95" r="84" fill="none" stroke-width="22"
+                              stroke-linecap="round" stroke-dasharray="0 527.79" transform="rotate(135 95 95)"/>
+                    </svg>
+                    <div class="gauge-center">
+                      <div class="gc-name" id="gaugeName">注意压力</div>
+                      <div class="gc-metric">压力指数</div>
+                      <div class="gc-value" id="gaugeIndex">58</div>
+                      <div class="gc-hrv" id="gaugeHrv">HRV 58 ms</div>
+                      <div class="gc-last" id="gaugeLast">最近一次 20:15</div>
+                    </div>
+                  </div>
+                  <div class="gauge-legend" id="gaugeLegend"></div>
+                </div>
+
+                <div class="gauge-foot">
+                  <span class="foot-label">今日综合压力状态</span>
+                  <button class="mini-btn" id="detailBtn" type="button" aria-expanded="false">
+                    详细解读
+                    <svg class="chev" width="5" height="9" viewBox="0 0 5 9" fill="none" aria-hidden="true">
+                      <path d="M1 1l3 3.5L1 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </button>
+                </div>
+                <div class="interp" id="interp"><p id="interpText">略低于日常水平，别硬撑，给自己一点放松的余地。</p></div>
+              </div>
+
+              <div class="card">
+                <div class="card-head">
+                  <span class="card-title">今日 HRV 趋势</span>
+                  <span class="card-note">近 30 天平均 58ms</span>
+                </div>
+                <div class="hrv-chart" id="hrvChart"></div>
+                <div class="xaxis" aria-hidden="true">
+                  <span>00:00</span><span>06:00</span><span>12:00</span><span>18:00</span><span>24:00</span>
+                </div>
+              </div>
+
+              <div class="card">
+                <div class="card-head">
+                  <span class="card-title">你现在的感受如何？</span>
+                  <button class="mini-btn" type="button" data-open-sheet>
+                    记录感受
+                    <svg class="chev" width="5" height="9" viewBox="0 0 5 9" fill="none" aria-hidden="true">
+                      <path d="M1 1l3 3.5L1 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </button>
+                </div>
+                <div class="mood-row" id="moodRow"></div>
+              </div>
+
+              <div class="card">
+                <div class="card-head">
+                  <span class="card-title">关键行动</span>
+                  <span class="card-note">今日 2/4</span>
+                </div>
+                <div id="actionRows"></div>
+              </div>
+
+              <button class="yday" id="ydayBtn" type="button">
+                <span class="yday-ico emoji">🌙</span>
+                <span class="yday-txt">或许此刻你想查看：<b>昨日（11月24日）的压力状态</b></span>
+                <svg class="chev" width="6" height="10" viewBox="0 0 6 10" fill="none" aria-hidden="true">
+                  <path d="M1 1l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+
+            </div>
+          </section>
+
+          <!-- ==================== 趋势 ==================== -->
+          <section class="panel" data-panel="1">
+            <header class="page-head center">
+              <h1 class="page-title">趋势</h1>
+              <div class="segmented" id="rangeSeg" role="group" aria-label="统计区间">
+                <button class="seg-btn on" type="button" data-range="14" aria-pressed="true">14 天</button>
+                <button class="seg-btn" type="button" data-range="60" aria-pressed="false">60 天</button>
+              </div>
+            </header>
+
+            <div class="stack">
+
+              <div class="card">
+                <div class="card-head">
+                  <span class="card-title">每日压力等级</span>
+                  <span class="card-note" id="trendNote">14 天</span>
+                </div>
+                <div class="chart">
+                  <div class="bars" id="bars"></div>
+                  <div class="avg-line" id="avgLine" style="bottom:56%">
+                    <span class="avg-tag">近 30 天均值 56</span>
+                  </div>
+                </div>
+                <div class="bar-x" id="barX"></div>
+              </div>
+
+              <div class="card">
+                <div class="card-head">
+                  <span class="card-title">等级分布</span>
+                  <span class="card-note" id="distNote">14 天</span>
+                </div>
+                <div id="distRows"></div>
+              </div>
+
+              <div class="metric-grid">
+                <div class="card metric">
+                  <div class="metric-label">近 30 天平均 HRV</div>
+                  <div class="metric-value">
+                    <span class="metric-num">58</span><span class="metric-unit">ms</span>
+                  </div>
+                  <div class="spark" id="sparkHrv"></div>
+                </div>
+                <div class="card metric">
+                  <div class="metric-label">静息心率</div>
+                  <div class="metric-value">
+                    <span class="metric-num">62</span><span class="metric-unit">bpm</span>
+                  </div>
+                  <div class="spark" id="sparkRhr"></div>
+                </div>
+              </div>
+
+            </div>
+          </section>
+
+          <!-- ==================== 行动 ==================== -->
+          <section class="panel" data-panel="2">
+            <header class="page-head center">
+              <h1 class="page-title">行动</h1>
+              <button class="record-btn" type="button" data-open-sheet>＋ 记录</button>
+            </header>
+
+            <div class="stack">
+
+              <div class="card">
+                <div class="card-head">
+                  <span class="card-title">今日心情</span>
+                  <span class="card-note" id="tlCount">4 条记录</span>
+                </div>
+                <div class="timeline" id="timeline"></div>
+              </div>
+
+              <div class="card">
+                <div class="card-head">
+                  <span class="card-title">习惯打卡</span>
+                  <span class="card-note" id="habitCount">2/4 已完成</span>
+                </div>
+                <div class="habit-grid" id="habitGrid"></div>
+              </div>
+
+              <button class="insight" id="insightBtn" type="button">
+                <span class="insight-ico emoji">📈</span>
+                <span class="insight-text">
+                  <span class="insight-t">行动 v.s. 压力趋势</span>
+                  <span class="insight-s">透视生活习惯如何改变你的压力趋势</span>
+                </span>
+                <svg class="chev" width="6" height="10" viewBox="0 0 6 10" fill="none" aria-hidden="true">
+                  <path d="M1 1l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+
+            </div>
+          </section>
+
+          <!-- ==================== 健康 ==================== -->
+          <section class="panel" data-panel="3">
+            <header class="page-head">
+              <div>
+                <h1 class="page-title">健康</h1>
+                <div class="head-sub">近 7 天数据 · 更新于 20:41</div>
+              </div>
+            </header>
+
+            <div class="stack">
+
+              <div class="card age-card">
+                <div class="age-top">
+                  <span class="age-label">身体年龄</span>
+                  <span class="age-pill">年轻中</span>
+                </div>
+                <div class="age-value">
+                  <span class="age-num">28</span><span class="age-unit">岁</span>
+                </div>
+                <div class="age-sub">实际年龄 <b>30 岁</b> · 年轻 2 岁</div>
+                <div class="age-foot">综合睡眠、静息心率、步数与最大摄氧量估算，仅供参考。</div>
+              </div>
+
+              <div class="card">
+                <div class="card-head">
+                  <span class="card-title">影响因素</span>
+                  <span class="card-note">对年龄的影响</span>
+                </div>
+                <div>
+                  <div class="factor">
+                    <span class="f-name">睡眠时长</span>
+                    <span class="f-val">7 小时 12 分</span>
+                    <span class="f-imp good">-1.2 岁</span>
+                  </div>
+                  <div class="factor">
+                    <span class="f-name">睡眠一致性</span>
+                    <span class="f-val">82 %</span>
+                    <span class="f-imp good">-0.5 岁</span>
+                  </div>
+                  <div class="factor">
+                    <span class="f-name">静息心率</span>
+                    <span class="f-val">62 bpm</span>
+                    <span class="f-imp good">-0.4 岁</span>
+                  </div>
+                  <div class="factor">
+                    <span class="f-name">步数</span>
+                    <span class="f-val">8,420 步</span>
+                    <span class="f-imp bad">+0.3 岁</span>
+                  </div>
+                  <div class="factor">
+                    <span class="f-name">最大摄氧量</span>
+                    <span class="f-val">41 ml/kg/min</span>
+                    <span class="f-imp good">-0.6 岁</span>
+                  </div>
+                  <div class="factor">
+                    <span class="f-name">力量训练时长</span>
+                    <span class="f-val">45 分钟/周</span>
+                    <span class="f-imp bad">+0.4 岁</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="card">
+                <div class="sleep-head">
+                  <span class="card-title">睡眠</span>
+                  <span class="sleep-badge">82 分</span>
+                </div>
+                <div class="sleep-dur">7 小时 12 分</div>
+                <div class="sleep-sub">睡眠质量 82 分 · 环比 <b>+4</b></div>
+                <div class="sleep-bar" aria-hidden="true">
+                  <span class="sleep-seg" style="flex:95;background:var(--great)"></span>
+                  <span class="sleep-seg" style="flex:208;background:var(--mint)"></span>
+                  <span class="sleep-seg" style="flex:102;background:var(--warn)"></span>
+                  <span class="sleep-seg" style="flex:27;background:var(--muted)"></span>
+                </div>
+                <div class="sleep-legend">
+                  <span class="sl-item"><span class="sl-dot" style="background:var(--great)"></span>深睡 1 小时 35 分</span>
+                  <span class="sl-item"><span class="sl-dot" style="background:var(--mint)"></span>核心 3 小时 28 分</span>
+                  <span class="sl-item"><span class="sl-dot" style="background:var(--warn)"></span>REM 1 小时 42 分</span>
+                  <span class="sl-item"><span class="sl-dot" style="background:var(--muted)"></span>清醒 27 分</span>
+                </div>
+              </div>
+
+              <p class="disclaimer">Mood Watch 不是医疗设备，所提供信息仅供参考，不能替代专业医疗诊断。</p>
+
+            </div>
+          </section>
+
+          <!-- ==================== 设置 ==================== -->
+          <section class="panel" data-panel="4">
+            <header class="page-head">
+              <h1 class="page-title">设置</h1>
+            </header>
+
+            <div class="set-groups">
+
+              <div class="set-group">
+                <div class="set-glabel">压力状态名称</div>
+                <div class="set-card" id="nameRows"></div>
+              </div>
+
+              <div class="set-group">
+                <div class="set-glabel">每日目标</div>
+                <div class="set-card">
+                  <div class="set-row"><span class="sr-name">晒太阳</span><span class="sr-val">20 分钟</span></div>
+                  <div class="set-row"><span class="sr-name">喝水</span><span class="sr-val">2000 毫升</span></div>
+                  <div class="set-row"><span class="sr-name">呼吸正念</span><span class="sr-val">5 分钟</span></div>
+                  <div class="set-row"><span class="sr-name">睡眠</span><span class="sr-val">7 小时</span></div>
+                </div>
+              </div>
+
+              <div class="set-group">
+                <div class="set-glabel">通知</div>
+                <div class="set-card">
+                  <div class="set-row">
+                    <span class="sr-name">压力提醒</span>
+                    <button class="switch" type="button" role="switch" aria-checked="true" aria-label="压力提醒" data-toggle="notify"></button>
+                  </div>
+                  <div class="set-row">
+                    <span class="sr-name">每日小结</span>
+                    <button class="switch" type="button" role="switch" aria-checked="true" aria-label="每日小结" data-toggle="digest"></button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="set-group">
+                <div class="set-glabel">隐私与数据</div>
+                <div class="set-card">
+                  <div class="set-row">
+                    <span class="sr-name">本地存储</span>
+                    <button class="switch" type="button" role="switch" aria-checked="true" aria-label="本地存储" data-toggle="local"></button>
+                  </div>
+                  <button class="set-row" type="button" id="exportBtn">
+                    <span class="sr-name">导出 JSON</span>
+                    <span class="sr-chev">
+                      <svg width="6" height="10" viewBox="0 0 6 10" fill="none" aria-hidden="true"><path d="M1 1l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </span>
+                  </button>
+                  <button class="set-row danger" type="button" id="clearBtn">
+                    <span class="sr-name">清空数据</span>
+                    <span class="sr-chev">
+                      <svg width="6" height="10" viewBox="0 0 6 10" fill="none" aria-hidden="true"><path d="M1 1l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </span>
+                  </button>
+                </div>
+              </div>
+
+              <div class="set-group">
+                <div class="set-glabel">关于</div>
+                <div class="set-card">
+                  <div class="set-row"><span class="sr-name">版本</span><span class="sr-val">1.0.0</span></div>
+                  <button class="set-row" type="button" id="aboutBtn">
+                    <span class="sr-name">复刻说明</span>
+                    <span class="sr-chev">
+                      <svg width="6" height="10" viewBox="0 0 6 10" fill="none" aria-hidden="true"><path d="M1 1l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </span>
+                  </button>
+                  <button class="set-row" type="button" id="onboardBtn">
+                    <span class="sr-name">重看引导</span>
+                    <span class="sr-chev">
+                      <svg width="6" height="10" viewBox="0 0 6 10" fill="none" aria-hidden="true"><path d="M1 1l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </span>
+                  </button>
+                </div>
+              </div>
+
+            </div>
+          </section>
+
+        </div>
+
+        <!-- ==================== TabBar ==================== -->
+        <nav class="tabbar" role="tablist" aria-label="主导航">
+          <div class="tab-items">
+            <button class="tab-btn on" type="button" data-tab="0" role="tab" aria-selected="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="4.1"/>
+                <path d="M12 2.7v2.1M12 19.2v2.1M2.7 12h2.1M19.2 12h2.1M5.5 5.5l1.5 1.5M17 17l1.5 1.5M18.5 5.5L17 7M7 17l-1.5 1.5"/>
+              </svg>
+              <span>今日</span>
+            </button>
+            <button class="tab-btn" type="button" data-tab="1" role="tab" aria-selected="false">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M5 20V13M12 20V6M19 20V10"/>
+              </svg>
+              <span>趋势</span>
+            </button>
+            <button class="tab-btn" type="button" data-tab="2" role="tab" aria-selected="false">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="9"/>
+                <path d="M8.2 12.4l2.6 2.6 5-5.4"/>
+              </svg>
+              <span>行动</span>
+            </button>
+            <button class="tab-btn" type="button" data-tab="3" role="tab" aria-selected="false">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="3" y="3" width="18" height="18" rx="5"/>
+                <path d="M12 16.4s-4.1-2.5-4.1-5.1a2.35 2.35 0 0 1 4.1-1.45 2.35 2.35 0 0 1 4.1 1.45c0 2.6-4.1 5.1-4.1 5.1z"/>
+              </svg>
+              <span>健康</span>
+            </button>
+            <button class="tab-btn" type="button" data-tab="4" role="tab" aria-selected="false">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <g fill="currentColor" stroke="none">
+                  <rect x="11" y="3" width="2" height="3.4" rx="1" transform="rotate(0 12 12)"/>
+                  <rect x="11" y="3" width="2" height="3.4" rx="1" transform="rotate(45 12 12)"/>
+                  <rect x="11" y="3" width="2" height="3.4" rx="1" transform="rotate(90 12 12)"/>
+                  <rect x="11" y="3" width="2" height="3.4" rx="1" transform="rotate(135 12 12)"/>
+                  <rect x="11" y="3" width="2" height="3.4" rx="1" transform="rotate(180 12 12)"/>
+                  <rect x="11" y="3" width="2" height="3.4" rx="1" transform="rotate(225 12 12)"/>
+                  <rect x="11" y="3" width="2" height="3.4" rx="1" transform="rotate(270 12 12)"/>
+                  <rect x="11" y="3" width="2" height="3.4" rx="1" transform="rotate(315 12 12)"/>
+                </g>
+                <circle cx="12" cy="12" r="6.5" fill="none" stroke="currentColor" stroke-width="2.1"/>
+                <circle cx="12" cy="12" r="2.4" fill="none" stroke="currentColor" stroke-width="1.8"/>
+              </svg>
+              <span>设置</span>
+            </button>
+          </div>
+          <div class="home-bar"><span></span></div>
+        </nav>
+
+        <!-- ==================== 遮罩 / 心情记录弹层 ==================== -->
+        <div class="scrim" id="scrim"></div>
+
+        <section class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle" aria-hidden="true">
+          <div class="sheet-grab" aria-hidden="true"></div>
+          <div class="sheet-head">
+            <h2 class="sheet-title" id="sheetTitle">记录此刻的感受</h2>
+            <button class="sheet-close" id="sheetClose" type="button" aria-label="关闭">✕</button>
+          </div>
+          <div class="sheet-body">
+            <div class="sheet-sec">
+              <div class="sheet-label">此刻的心情</div>
+              <div class="mood-grid" id="sheetMoods"></div>
+            </div>
+            <div class="sheet-sec">
+              <div class="sheet-label">更像哪一种状态<span class="hint">单选</span></div>
+              <div class="chip-grid" id="sheetStates"></div>
+            </div>
+            <div class="sheet-sec">
+              <div class="sheet-label">发生了什么<span class="hint">可多选</span></div>
+              <div class="tag-grid" id="sheetTags"></div>
+            </div>
+            <div class="sheet-sec">
+              <div class="sheet-label">备注</div>
+              <textarea class="note-input" id="noteInput" maxlength="120" placeholder="想说点什么…（可选）"></textarea>
+            </div>
+          </div>
+          <div class="sheet-foot">
+            <button class="btn-primary" id="saveBtn" type="button">保存</button>
+          </div>
+        </section>
+
+        <!-- ==================== 通用 Alert ==================== -->
+        <div class="alert-layer" id="alertLayer" role="alertdialog" aria-modal="true" aria-labelledby="alertTitle" aria-hidden="true">
+          <div class="alert-box">
+            <div class="alert-content">
+              <div class="alert-title" id="alertTitle">提示</div>
+              <div class="alert-msg" id="alertMsg"></div>
+            </div>
+            <button class="alert-btn" id="alertOk" type="button">好</button>
+          </div>
+        </div>
+
+        <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  var $ = function (sel, root) { return (root || document).querySelector(sel); };
+  var $$ = function (sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); };
+
+  /* ---------------- design tokens / levels ---------------- */
+
+  var LEVELS = [
+    { key: 1, name: '压力过载', short: '过载', color: 'var(--overload)', desc: '此刻你的 HRV 低于日常水平，身体在硬扛，先停下来喘口气。' },
+    { key: 2, name: '注意压力', short: '注意', color: 'var(--warn)', desc: '略低于日常水平，别硬撑，给自己一点放松的余地。' },
+    { key: 3, name: '状态正常', short: '正常', color: 'var(--normal)', desc: '处于日常水平，张弛有度，保持节奏就好。' },
+    { key: 4, name: '状态优秀', short: '优秀', color: 'var(--great)', desc: '高于日常水平，身心放松，状态在线。' }
+  ];
+
+  var LEVEL_VAR = ['--muted', '--overload', '--warn', '--normal', '--great'];
+
+  function levelOf(index) {
+    if (index >= 62) { return 1; }
+    if (index >= 52) { return 2; }
+    if (index >= 38) { return 3; }
+    return 4;
+  }
+
+  var MOODS = [
+    { e: '😄', label: '很好' },
+    { e: '🙂', label: '不错' },
+    { e: '😐', label: '一般' },
+    { e: '😕', label: '低落' },
+    { e: '😣', label: '很糟' }
+  ];
+
+  /* mood index -> level color for timeline dots */
+  var MOOD_LEVEL = [4, 3, 0, 2, 1];
+
+  var STATES = ['惊喜', '兴奋', '感恩', '愉悦', '满足', '平静', '无感', '压力', '不安',
+                '悲伤', '愤怒', '元气满满', '放松', '舒适', '正常', '被掏空', '虚弱', '疼痛'];
+
+  var TAGS = [
+    { id: 'work', e: '🧑‍💻', n: '工作' },
+    { id: 'sport', e: '🏋️', n: '运动' },
+    { id: 'caffeine', e: '☕', n: '咖啡因' },
+    { id: 'meditate', e: '🧘', n: '冥想' },
+    { id: 'money', e: '💰', n: '金钱' },
+    { id: 'family', e: '🏠', n: '家庭' },
+    { id: 'friends', e: '👫', n: '朋友' },
+    { id: 'sleep', e: '🛌', n: '睡眠' }
+  ];
+
+  function tagById(id) {
+    for (var i = 0; i < TAGS.length; i++) {
+      if (TAGS[i].id === id) { return TAGS[i]; }
+    }
+    return { e: '·', n: id };
+  }
+
+  function tagLabel(id) {
+    var t = tagById(id);
+    return t.e + ' ' + t.n;
+  }
+
+  /* ---------------- demo data ---------------- */
+
+  var HRV_SERIES = [72, 66, 58, 49, 43, 47, 62, 82, 96, 88, 71, 58,
+                    46, 38, 44, 60, 78, 69, 56, 45, 52, 74, 92, 58];
+
+  var D14 = [71, 66, 58, 49, 43, 55, 62, 70, 63, 52, 44, 34, 41, 58];
+
+  var D60 = (function () {
+    var arr = [];
+    for (var i = 0; i < 60; i++) {
+      var base = 57 + Math.sin(i / 3.3) * 10 + Math.cos(i / 6.7) * 7;
+      var wobble = (i % 13 === 5 ? -13 : 0) + (i % 17 === 9 ? 8 : 0);
+      var v = Math.round(base + wobble);
+      arr.push(Math.max(27, Math.min(84, v)));
+    }
+    arr[59] = 58; /* keep the newest bar in sync with today's index */
+    return arr;
+  })();
+
+  var ACTIONS = [
+    { e: '🌞', name: '晒太阳', val: '12/20 分钟', p: 0.6 },
+    { e: '💧', name: '喝水', val: '1200/2000 毫升', p: 0.6 },
+    { e: '🧘', name: '呼吸正念', val: '5/5 分钟', p: 1 },
+    { e: '😴', name: '睡够 7 小时', val: '6.4/7 小时', p: 0.91 }
+  ];
+
+  var INIT_HABITS = [
+    { e: '🧘', name: '呼吸正念', val: '5 分钟', done: true },
+    { e: '🌞', name: '晒太阳', val: '20 分钟', done: true },
+    { e: '💧', name: '喝水', val: '2000 毫升', done: false },
+    { e: '☕', name: '咖啡因', val: '< 100 mg', done: false }
+  ];
+
+  var INIT_RECORDS = [
+    { t: '20:15', e: '😣', mood: 4, state: '压力', tags: ['work', 'caffeine'], note: '需求评审拖到现在，脑子还在转，先喝口热水。' },
+    { t: '17:40', e: '😐', mood: 2, state: '无感', tags: ['work'], note: '会后放空了一会儿，补了杯水。' },
+    { t: '12:30', e: '🙂', mood: 1, state: '平静', tags: ['sport', 'friends'], note: '午饭后和同事走了两圈，太阳很好。' },
+    { t: '08:05', e: '😄', mood: 0, state: '元气满满', tags: ['sleep', 'meditate'], note: '睡了 7 小时 12 分，醒来很轻盈。' }
+  ];
+
+  function cloneRecords() {
+    return INIT_RECORDS.map(function (r) {
+      return { t: r.t, e: r.e, mood: r.mood, state: r.state, tags: r.tags.slice(), note: r.note };
+    });
+  }
+
+  /* ---------------- state ---------------- */
+
+  var S = {
+    theme: 'light',
+    tab: 0,
+    range: 14,
+    index: 58,
+    hrv: 58,
+    last: '20:15',
+    names: ['压力过载', '注意压力', '状态正常', '状态优秀'],
+    dayMood: 1,
+    records: cloneRecords(),
+    habits: INIT_HABITS.map(function (h) { return { e: h.e, name: h.name, val: h.val, done: h.done }; }),
+    toggles: { notify: true, digest: true, local: true },
+    clock: '20:47',
+    sheetMood: 2,
+    sheetState: '平静',
+    sheetTags: []
+  };
+
+  /* ---------------- helpers ---------------- */
+
+  function esc(str) {
+    return String(str).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
+  function smoothPath(pts) {
+    if (pts.length < 2) { return ''; }
+    var d = 'M ' + pts[0][0].toFixed(1) + ',' + pts[0][1].toFixed(1);
+    for (var i = 0; i < pts.length - 1; i++) {
+      var p0 = pts[i - 1] || pts[i];
+      var p1 = pts[i];
+      var p2 = pts[i + 1];
+      var p3 = pts[i + 2] || pts[i + 1];
+      var c1x = p1[0] + (p2[0] - p0[0]) / 6;
+      var c1y = p1[1] + (p2[1] - p0[1]) / 6;
+      var c2x = p2[0] - (p3[0] - p1[0]) / 6;
+      var c2y = p2[1] - (p3[1] - p1[1]) / 6;
+      d += ' C ' + c1x.toFixed(1) + ',' + c1y.toFixed(1) + ' ' +
+           c2x.toFixed(1) + ',' + c2y.toFixed(1) + ' ' +
+           p2[0].toFixed(1) + ',' + p2[1].toFixed(1);
+    }
+    return d;
+  }
+
+  function dateLabel(daysAgo) {
+    var d = new Date(2025, 10, 25);
+    d.setDate(d.getDate() - daysAgo);
+    return (d.getMonth() + 1) + '/' + d.getDate();
+  }
+
+  function dateTitle(daysAgo) {
+    var d = new Date(2025, 10, 25);
+    d.setDate(d.getDate() - daysAgo);
+    return '11月' + d.getDate() + '日';
+  }
+
+  function addMinutes(hhmm, mins) {
+    var parts = hhmm.split(':');
+    var total = (+parts[0]) * 60 + (+parts[1]) + mins;
+    total = total % (24 * 60);
+    var h = Math.floor(total / 60);
+    var m = total % 60;
+    return (h < 10 ? '0' : '') + h + ':' + (m < 10 ? '0' : '') + m;
+  }
+
+  /* ---------------- toast / alert ---------------- */
+
+  var toastTimer = null;
+
+  function toast(msg) {
+    var el = $('#toast');
+    el.textContent = msg;
+    el.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { el.classList.remove('show'); }, 1800);
+  }
+
+  function showAlert(title, msg) {
+    $('#alertTitle').textContent = title;
+    $('#alertMsg').textContent = msg;
+    $('#alertLayer').classList.add('show');
+    $('#alertLayer').setAttribute('aria-hidden', 'false');
+  }
+
+  function hideAlert() {
+    $('#alertLayer').classList.remove('show');
+    $('#alertLayer').setAttribute('aria-hidden', 'true');
+  }
+
+  /* ---------------- theme ---------------- */
+
+  function setTheme(theme) {
+    S.theme = theme;
+    document.body.setAttribute('data-theme', theme);
+    document.documentElement.setAttribute('data-theme', theme);
+    $('#themeLabel').textContent = theme === 'dark' ? '浅色' : '深色';
+    $('#themeIcon').textContent = theme === 'dark' ? '☀' : '☾';
+    $('#themeBtn').setAttribute('aria-label', theme === 'dark' ? '切换到浅色模式' : '切换到深色模式');
+  }
+
+  /* ---------------- tabs ---------------- */
+
+  function setTab(i, animate) {
+    S.tab = i;
+    $$('.panel').forEach(function (p) {
+      p.classList.toggle('active', +p.getAttribute('data-panel') === i);
+    });
+    $$('.tab-btn').forEach(function (b) {
+      var on = +b.getAttribute('data-tab') === i;
+      b.classList.toggle('on', on);
+      b.setAttribute('aria-selected', on ? 'true' : 'false');
+    });
+    var panel = $('.panel[data-panel="' + i + '"]');
+    if (panel) { panel.scrollTop = 0; }
+    if (animate !== false) {
+      setTimeout(function () {
+        if (i === 0) { renderGauge(); renderActions(); }
+        if (i === 1) { renderTrend(); }
+      }, 40);
+    }
+  }
+
+  /* ---------------- 今日 ---------------- */
+
+  function renderGauge() {
+    var lv = levelOf(S.index);
+    var color = 'var(' + LEVEL_VAR[lv] + ')';
+    $('#gaugeName').textContent = S.names[lv - 1];
+    $('#gaugeIndex').textContent = S.index;
+    $('#gaugeHrv').textContent = 'HRV ' + S.hrv + ' ms';
+    $('#gaugeLast').textContent = '最近一次 ' + S.last;
+    $('#interpText').textContent = LEVELS[lv - 1].desc;
+
+    $('#gaugeLegend').innerHTML = LEVELS.map(function (l, i) {
+      var on = (i + 1) === lv;
+      return '<div class="gl-item' + (on ? ' on' : '') + '"' + (on ? ' style="color:' + l.color + '"' : '') + '>' +
+               '<span class="gl-bar" style="background:' + l.color + '"></span>' +
+               '<span class="gl-name">' + l.short + '</span>' +
+             '</div>';
+    }).join('');
+
+    var prog = $('#gaugeProg');
+    prog.style.stroke = color;
+    prog.style.strokeDasharray = '0 527.79';
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        prog.style.strokeDasharray = (395.84 * (S.index / 100)).toFixed(1) + ' 527.79';
+      });
+    });
+  }
+
+  function ringSvg(p) {
+    var C = 87.9646;
+    var dash = (C * p).toFixed(1);
+    return '<svg viewBox="0 0 34 34" aria-hidden="true">' +
+             '<circle class="mr-track" cx="17" cy="17" r="14" fill="none" stroke-width="4"/>' +
+             '<circle class="mr-prog" cx="17" cy="17" r="14" fill="none" stroke-width="4" stroke-linecap="round" ' +
+                     'transform="rotate(-90 17 17)" stroke-dasharray="0 87.96" data-c="' + dash + '"/>' +
+           '</svg>';
+  }
+
+  function renderActions() {
+    var wrap = $('#actionRows');
+    wrap.innerHTML = ACTIONS.map(function (a) {
+      return '<div class="action-row">' +
+               '<span class="ar-emoji emoji">' + a.e + '</span>' +
+               '<span class="ar-name">' + a.name + '</span>' +
+               '<span class="ar-val">' + a.val + '</span>' +
+               '<span class="mini-ring">' + ringSvg(a.p) + '</span>' +
+             '</div>';
+    }).join('');
+    requestAnimationFrame(function () {
+      $$('.mini-ring .mr-prog', wrap).forEach(function (el) {
+        el.style.strokeDasharray = el.getAttribute('data-c') + ' 87.96';
+      });
+    });
+  }
+
+  function renderHrv() {
+    var W = 313, H = 100, x0 = 24, x1 = 310, y0 = 8, y1 = 88;
+    var yFor = function (v) {
+      return y1 - (y1 - y0) * Math.max(0, Math.min(180, v)) / 180;
+    };
+    var pts = HRV_SERIES.map(function (v, i) {
+      return [x0 + (x1 - x0) * i / (HRV_SERIES.length - 1), yFor(v)];
+    });
+    var line = smoothPath(pts);
+    var area = line + ' L ' + x1 + ',' + y1 + ' L ' + x0 + ',' + y1 + ' Z';
+    var grid = [180, 90, 0].map(function (v) {
+      var y = yFor(v).toFixed(1);
+      return '<line class="grid-line" x1="' + x0 + '" y1="' + y + '" x2="' + x1 + '" y2="' + y + '"/>';
+    }).join('');
+    var labels = [[180, '180'], [90, '90'], [0, '0']].map(function (pair) {
+      return '<text class="axis-text" x="' + (x0 - 7) + '" y="' + (yFor(pair[0]) + 3.2).toFixed(1) +
+             '" text-anchor="end">' + pair[1] + '</text>';
+    }).join('');
+    var last = pts[pts.length - 1];
+
+    $('#hrvChart').innerHTML =
+      '<svg viewBox="0 0 ' + W + ' ' + H + '" width="' + W + '" height="' + H + '" aria-hidden="true">' +
+        '<defs>' +
+          '<linearGradient id="hrvGrad" x1="0" y1="0" x2="0" y2="1">' +
+            '<stop offset="0%" class="grad-a"/><stop offset="100%" class="grad-b"/>' +
+          '</linearGradient>' +
+        '</defs>' +
+        grid +
+        '<path class="hrv-area" d="' + area + '"/>' +
+        '<path class="hrv-line" pathLength="100" d="' + line + '"/>' +
+        '<circle class="hrv-halo" cx="' + last[0].toFixed(1) + '" cy="' + last[1].toFixed(1) + '" r="7"/>' +
+        '<circle class="hrv-dot" cx="' + last[0].toFixed(1) + '" cy="' + last[1].toFixed(1) + '" r="3.6"/>' +
+        labels +
+      '</svg>';
+  }
+
+  function renderMoodRow() {
+    $('#moodRow').innerHTML = MOODS.map(function (m, i) {
+      return '<button class="mood-dot emoji' + (i === S.dayMood ? ' on' : '') + '" type="button" data-mood="' + i +
+             '" aria-label="' + m.label + '" aria-pressed="' + (i === S.dayMood) + '">' + m.e + '</button>';
+    }).join('');
+  }
+
+  /* ---------------- 趋势 ---------------- */
+
+  function renderTrend() {
+    var data = S.range === 14 ? D14 : D60;
+    var bars = $('#bars');
+    var delay = S.range === 60 ? 6 : 24;
+    bars.className = 'bars' + (S.range === 60 ? ' dense' : '');
+    bars.innerHTML = data.map(function (v, i) {
+      var lv = levelOf(v);
+      var h = Math.max(3, Math.min(100, v));
+      return '<div class="bar" data-h="' + h + '" style="background:var(' + LEVEL_VAR[lv] + ');transition-delay:' +
+             (i * delay) + 'ms" title="' + dateTitle(data.length - 1 - i) + ' · 指数 ' + v + ' · ' +
+             esc(S.names[lv - 1]) + '"></div>';
+    }).join('');
+    requestAnimationFrame(function () {
+      $$('.bar', bars).forEach(function (el) {
+        el.style.height = el.getAttribute('data-h') + '%';
+      });
+    });
+
+    var counts = [0, 0, 0, 0, 0];
+    data.forEach(function (v) { counts[levelOf(v)]++; });
+
+    $('#distRows').innerHTML = [1, 2, 3, 4].map(function (lv) {
+      var pct = (counts[lv] / data.length * 100).toFixed(1);
+      return '<div class="dist-row">' +
+               '<div class="dist-head">' +
+                 '<span class="dist-dot" style="background:var(' + LEVEL_VAR[lv] + ')"></span>' +
+                 '<span class="dist-name">' + esc(S.names[lv - 1]) + '</span>' +
+                 '<span class="dist-days">' + counts[lv] + ' 天</span>' +
+               '</div>' +
+               '<div class="dist-track">' +
+                 '<div class="dist-fill" data-w="' + pct + '" style="background:var(' + LEVEL_VAR[lv] + ')"></div>' +
+               '</div>' +
+             '</div>';
+    }).join('');
+
+    requestAnimationFrame(function () {
+      $$('.dist-fill').forEach(function (el) {
+        el.style.width = el.getAttribute('data-w') + '%';
+      });
+    });
+
+    $('#distNote').textContent = data.length + ' 天';
+    $('#trendNote').textContent = data.length + ' 天';
+    renderBarX();
+  }
+
+  function renderBarX() {
+    var n = S.range;
+    var picks = S.range === 14 ? [0, 3, 7, 10, 13] : [0, 12, 24, 36, 48, 59];
+    $('#barX').innerHTML = picks.map(function (idx, k) {
+      var left = (idx / (n - 1) * 100).toFixed(2);
+      var off = k === 0 ? '0' : (k === picks.length - 1 ? '-100%' : '-50%');
+      return '<span style="left:' + left + '%;transform:translateX(' + off + ')">' +
+             dateLabel(n - 1 - idx) + '</span>';
+    }).join('');
+  }
+
+  function sparkline(data, cls) {
+    var W = 118, H = 34, pad = 4;
+    var min = Math.min.apply(null, data);
+    var max = Math.max.apply(null, data);
+    var span = Math.max(1, max - min);
+    var pts = data.map(function (v, i) {
+      return [pad + (W - 2 * pad) * i / (data.length - 1),
+              H - pad - (H - 2 * pad) * (v - min) / span];
+    });
+    var last = pts[pts.length - 1];
+    return '<svg viewBox="0 0 ' + W + ' ' + H + '" aria-hidden="true">' +
+             '<path class="spark-line ' + cls + '" d="' + smoothPath(pts) + '"/>' +
+             '<circle class="spark-dot ' + cls + '" cx="' + last[0].toFixed(1) + '" cy="' + last[1].toFixed(1) + '" r="2.6"/>' +
+           '</svg>';
+  }
+
+  function renderSparklines() {
+    $('#sparkHrv').innerHTML = sparkline([54, 56, 55, 59, 58, 60, 58], 'hrv');
+    $('#sparkRhr').innerHTML = sparkline([64, 63, 64, 62, 63, 61, 62], 'rhr');
+  }
+
+  /* ---------------- 行动 ---------------- */
+
+  function renderTimeline() {
+    var wrap = $('#timeline');
+    $('#tlCount').textContent = S.records.length ? S.records.length + ' 条记录' : '暂无记录';
+    if (!S.records.length) {
+      wrap.innerHTML = '<div class="empty">今天还没有记录<span>点右上角「＋ 记录」，留住此刻的感受</span></div>';
+      return;
+    }
+    wrap.innerHTML = S.records.map(function (r) {
+      var lv = MOOD_LEVEL[r.mood] == null ? 0 : MOOD_LEVEL[r.mood];
+      var dotColor = lv === 0 ? 'var(--muted)' : 'var(' + LEVEL_VAR[lv] + ')';
+      var tags = r.tags.map(function (id) {
+        return '<span class="tag">' + tagLabel(id) + '</span>';
+      }).join('');
+      return '<div class="tl-item">' +
+               '<div class="tl-time">' + r.t + '</div>' +
+               '<div class="tl-rail"><span class="tl-dot" style="background:' + dotColor + '"></span></div>' +
+               '<div class="tl-body">' +
+                 '<div class="tl-head"><span class="tl-emoji emoji">' + r.e + '</span>' +
+                   '<span class="tl-state">' + esc(r.state) + '</span></div>' +
+                 (tags ? '<div class="tl-tags">' + tags + '</div>' : '') +
+                 (r.note ? '<div class="tl-note">' + esc(r.note) + '</div>' : '') +
+               '</div>' +
+             '</div>';
+    }).join('');
+  }
+
+  var CHECK_SVG = '<svg width="11" height="11" viewBox="0 0 12 12" fill="none" aria-hidden="true">' +
+                  '<path d="M2.2 6.3l2.5 2.5 5-5.2" stroke="currentColor" stroke-width="2" ' +
+                  'stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+  function renderHabits() {
+    $('#habitGrid').innerHTML = S.habits.map(function (h, i) {
+      return '<button class="habit' + (h.done ? ' on' : '') + '" type="button" data-habit="' + i +
+             '" aria-pressed="' + h.done + '">' +
+               '<span class="h-top"><span class="h-emoji emoji">' + h.e + '</span>' +
+                 '<span class="h-check">' + CHECK_SVG + '</span></span>' +
+               '<span class="h-name">' + h.name + '</span>' +
+               '<span class="h-val">' + h.val + '</span>' +
+             '</button>';
+    }).join('');
+    var done = S.habits.filter(function (h) { return h.done; }).length;
+    $('#habitCount').textContent = done + '/4 已完成';
+  }
+
+  /* ---------------- 设置 ---------------- */
+
+  function renderSettingsNames() {
+    $('#nameRows').innerHTML = LEVELS.map(function (l, i) {
+      return '<button class="set-row" type="button" data-rename="' + l.key + '">' +
+               '<span class="sr-name"><span class="set-dot" style="background:' + l.color + '"></span>' +
+                 esc(S.names[i]) + '</span>' +
+               '<span class="sr-chev">' +
+                 '<svg width="6" height="10" viewBox="0 0 6 10" fill="none" aria-hidden="true">' +
+                 '<path d="M1 1l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" ' +
+                 'stroke-linejoin="round"/></svg>' +
+               '</span>' +
+             '</button>';
+    }).join('');
+  }
+
+  function renameLevel(key) {
+    var i = key - 1;
+    var next = window.prompt('重命名「' + S.names[i] + '」', S.names[i]);
+    if (next === null) { return; }
+    var val = next.trim();
+    if (!val) { return; }
+    S.names[i] = val.slice(0, 8);
+    renderSettingsNames();
+    renderGauge();
+    renderTrend();
+    toast('名称已更新');
+  }
+
+  /* ---------------- sheet ---------------- */
+
+  function renderSheetOptions() {
+    $('#sheetMoods').innerHTML = MOODS.map(function (m, i) {
+      return '<button class="mood-opt" type="button" data-smood="' + i + '">' +
+               '<span class="emo emoji">' + m.e + '</span><span class="lbl">' + m.label + '</span>' +
+             '</button>';
+    }).join('');
+
+    $('#sheetStates').innerHTML = STATES.map(function (s) {
+      return '<button class="chip" type="button" data-state="' + s + '">' + s + '</button>';
+    }).join('');
+
+    $('#sheetTags').innerHTML = TAGS.map(function (t) {
+      return '<button class="tag-chip" type="button" data-tag="' + t.id + '">' +
+               '<span class="e emoji">' + t.e + '</span>' + t.n +
+             '</button>';
+    }).join('');
+  }
+
+  function syncSheetSelection() {
+    $$('#sheetMoods [data-smood]').forEach(function (b) {
+      b.classList.toggle('on', +b.getAttribute('data-smood') === S.sheetMood);
+    });
+    $$('#sheetStates [data-state]').forEach(function (b) {
+      b.classList.toggle('on', b.getAttribute('data-state') === S.sheetState);
+    });
+    $$('#sheetTags [data-tag]').forEach(function (b) {
+      b.classList.toggle('on', S.sheetTags.indexOf(b.getAttribute('data-tag')) >= 0);
+    });
+  }
+
+  function openSheet() {
+    S.sheetMood = S.dayMood == null ? 2 : S.dayMood;
+    S.sheetState = '平静';
+    S.sheetTags = [];
+    $('#noteInput').value = '';
+    syncSheetSelection();
+    var sheet = $('#sheet');
+    sheet.classList.add('show');
+    sheet.setAttribute('aria-hidden', 'false');
+    $('#scrim').classList.add('show');
+    $('.sheet-body').scrollTop = 0;
+  }
+
+  function closeSheet() {
+    var sheet = $('#sheet');
+    sheet.classList.remove('show');
+    sheet.setAttribute('aria-hidden', 'true');
+    $('#scrim').classList.remove('show');
+  }
+
+  function saveRecord() {
+    var tagIds = S.sheetTags.slice();
+    S.records.unshift({
+      t: S.clock,
+      e: MOODS[S.sheetMood].e,
+      mood: S.sheetMood,
+      state: S.sheetState || '平静',
+      tags: tagIds,
+      note: $('#noteInput').value.trim()
+    });
+    S.clock = addMinutes(S.clock, 3);
+    S.dayMood = S.sheetMood;
+    closeSheet();
+    renderTimeline();
+    renderMoodRow();
+    setTab(2);
+    toast('已记录 · ' + (S.sheetState || '平静'));
+  }
+
+  /* ---------------- render all ---------------- */
+
+  function renderAll() {
+    renderGauge();
+    renderHrv();
+    renderActions();
+    renderMoodRow();
+    renderTimeline();
+    renderHabits();
+    renderSettingsNames();
+    renderSparklines();
+    renderTrend();
+    syncSheetSelection();
+    $$('.switch').forEach(function (sw) {
+      var key = sw.getAttribute('data-toggle');
+      sw.setAttribute('aria-checked', S.toggles[key] ? 'true' : 'false');
+    });
+  }
+
+  function resetAll() {
+    S.range = 14;
+    S.index = 58;
+    S.hrv = 58;
+    S.last = '20:15';
+    S.names = LEVELS.map(function (l) { return l.name; });
+    S.dayMood = 1;
+    S.records = cloneRecords();
+    S.habits = INIT_HABITS.map(function (h) { return { e: h.e, name: h.name, val: h.val, done: h.done }; });
+    S.toggles = { notify: true, digest: true, local: true };
+    S.clock = '20:47';
+    S.sheetMood = 2;
+    S.sheetState = '平静';
+    S.sheetTags = [];
+    closeSheet();
+    hideAlert();
+    $('#interp').classList.remove('open');
+    $('#detailBtn').classList.remove('open');
+    $('#detailBtn').setAttribute('aria-expanded', 'false');
+    $$('.seg-btn').forEach(function (b) {
+      var on = +b.getAttribute('data-range') === 14;
+      b.classList.toggle('on', on);
+      b.setAttribute('aria-pressed', on ? 'true' : 'false');
+    });
+    $$('.panel').forEach(function (p) { p.scrollTop = 0; });
+    setTab(0, false);
+    renderAll();
+    toast('已重置演示数据');
+  }
+
+  /* ---------------- auto fit ---------------- */
+
+  function fit() {
+    var availH = window.innerHeight - 124;
+    var availW = window.innerWidth - 48;
+    var scale = Math.min(1, availH / 876, availW / 417);
+    scale = Math.max(0.62, scale);
+    document.documentElement.style.setProperty('--scale', scale.toFixed(4));
+  }
+
+  /* ---------------- events ---------------- */
+
+  document.addEventListener('click', function (e) {
+    var t = e.target;
+
+    var tabBtn = t.closest ? t.closest('.tab-btn') : null;
+    if (tabBtn) { setTab(+tabBtn.getAttribute('data-tab')); return; }
+
+    var openBtn = t.closest ? t.closest('[data-open-sheet]') : null;
+    if (openBtn) { openSheet(); return; }
+
+    var moodDot = t.closest ? t.closest('[data-mood]') : null;
+    if (moodDot) {
+      S.dayMood = +moodDot.getAttribute('data-mood');
+      renderMoodRow();
+      return;
+    }
+
+    var habit = t.closest ? t.closest('[data-habit]') : null;
+    if (habit) {
+      var hi = +habit.getAttribute('data-habit');
+      S.habits[hi].done = !S.habits[hi].done;
+      renderHabits();
+      return;
+    }
+
+    var seg = t.closest ? t.closest('.seg-btn') : null;
+    if (seg) {
+      var range = +seg.getAttribute('data-range');
+      if (range !== S.range) {
+        S.range = range;
+        $$('.seg-btn').forEach(function (b) {
+          var on = +b.getAttribute('data-range') === range;
+          b.classList.toggle('on', on);
+          b.setAttribute('aria-pressed', on ? 'true' : 'false');
+        });
+        renderTrend();
+      }
+      return;
+    }
+
+    var rename = t.closest ? t.closest('[data-rename]') : null;
+    if (rename) { renameLevel(+rename.getAttribute('data-rename')); return; }
+
+    var sw = t.closest ? t.closest('.switch[data-toggle]') : null;
+    if (sw) {
+      var key = sw.getAttribute('data-toggle');
+      S.toggles[key] = !S.toggles[key];
+      sw.setAttribute('aria-checked', S.toggles[key] ? 'true' : 'false');
+      return;
+    }
+
+    var smood = t.closest ? t.closest('[data-smood]') : null;
+    if (smood) {
+      S.sheetMood = +smood.getAttribute('data-smood');
+      syncSheetSelection();
+      return;
+    }
+
+    var state = t.closest ? t.closest('[data-state]') : null;
+    if (state) {
+      S.sheetState = state.getAttribute('data-state');
+      syncSheetSelection();
+      return;
+    }
+
+    var tag = t.closest ? t.closest('[data-tag]') : null;
+    if (tag) {
+      var id = tag.getAttribute('data-tag');
+      var at = S.sheetTags.indexOf(id);
+      if (at >= 0) { S.sheetTags.splice(at, 1); } else { S.sheetTags.push(id); }
+      syncSheetSelection();
+      return;
+    }
+  });
+
+  $('#detailBtn').addEventListener('click', function () {
+    var open = $('#interp').classList.toggle('open');
+    this.classList.toggle('open', open);
+    this.setAttribute('aria-expanded', open ? 'true' : 'false');
+  });
+
+  $('#sheetClose').addEventListener('click', closeSheet);
+  $('#scrim').addEventListener('click', closeSheet);
+  $('#saveBtn').addEventListener('click', saveRecord);
+  $('#alertOk').addEventListener('click', hideAlert);
+
+  $('#insightBtn').addEventListener('click', function () {
+    showAlert('数据积累中', '继续记录 3 天心情与习惯，就能看到行动与压力趋势的关联。');
+  });
+
+  $('#ydayBtn').addEventListener('click', function () {
+    showAlert('昨日回顾', '11月24日 · 综合压力状态「状态正常」，压力指数 46。');
+  });
+
+  $('#aboutBtn').addEventListener('click', function () {
+    showAlert('复刻说明', 'Mood Watch 为净室复刻项目：界面、文案与图表依据设计文档重新实现，不含原 App 任何资源。');
+  });
+
+  $('#onboardBtn').addEventListener('click', function () {
+    showAlert('引导流程', 'Onboarding 在 SwiftUI 版本中实现，此处仅作界面预览。');
+  });
+
+  $('#exportBtn').addEventListener('click', function () {
+    var payload = {
+      app: 'Mood Watch',
+      exportedAt: '2025-11-25 20:41',
+      stressIndex: S.index,
+      hrv: S.hrv,
+      records: S.records,
+      habits: S.habits
+    };
+    var blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = 'moodwatch-data.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function () { URL.revokeObjectURL(url); }, 2000);
+    toast('已导出 JSON');
+  });
+
+  $('#clearBtn').addEventListener('click', function () {
+    S.records = [];
+    S.habits.forEach(function (h) { h.done = false; });
+    renderTimeline();
+    renderHabits();
+    toast('已清空演示数据');
+  });
+
+  $('#themeBtn').addEventListener('click', function () {
+    setTheme(S.theme === 'dark' ? 'light' : 'dark');
+  });
+
+  $('#resetBtn').addEventListener('click', resetAll);
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') {
+      if ($('#alertLayer').classList.contains('show')) { hideAlert(); return; }
+      if ($('#sheet').classList.contains('show')) { closeSheet(); }
+    }
+  });
+
+  window.addEventListener('resize', fit);
+
+  /* ---------------- init ---------------- */
+
+  fit();
+  setTheme('light');
+  renderSheetOptions();
+  renderAll();
+  setTab(0, false);
+
+  /* re-fit when the browser UI settles */
+  window.addEventListener('load', fit);
+})();
+</script>
+</body>
+</html>
